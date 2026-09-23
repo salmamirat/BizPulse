@@ -1,0 +1,46 @@
+flowchart TD
+
+U[Utilisateur]
+
+M[Application Mobile<br/>React Native + Expo]
+
+API[Backend API<br/>Node.js + Express]
+
+AUTH[Authentification<br/>JWT + bcrypt]
+
+TR[Transactions CRUD]
+
+DASH[Dashboard Financier]
+
+AGENT[Agent IA]
+
+TOOLS[Function Calling<br/>getFinancialSummary<br/>getExpensesByCategory<br/>simulateNewHire]
+
+AI[LLM API]
+
+DB[(PostgreSQL)]
+
+U --> M
+
+M --> API
+
+API --> AUTH
+API --> TR
+API --> DASH
+API --> AGENT
+
+AUTH --> DB
+TR --> DB
+DASH --> DB
+
+AGENT --> AI
+
+AI --> TOOLS
+
+TOOLS --> DB
+
+TOOLS --> AI
+
+AI --> AGENT
+
+AGENT --> M
