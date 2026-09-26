@@ -151,6 +151,8 @@ L'assistant répond uniquement aux questions couvertes par les données et les o
 
 BizPulse utilise le Function Calling pour permettre à l'assistant d'utiliser les fonctions métier du backend.
 
+> Choix justifié : l'agent est orienté action (résumés financiers, simulations) plutôt que recherche documentaire. Le Function Calling est donc plus adapté que le RAG, qui aurait nécessité une base vectorielle sans apporter de valeur pour ce cas d'usage.
+
 L'intelligence artificielle n'accède jamais directement à PostgreSQL.
 
 ```text
@@ -258,19 +260,19 @@ Chaque message contient :
 
 # ⚡ Streaming des réponses
 
-Les réponses de l'assistant sont affichées progressivement dans l'application mobile grâce au streaming.
+Les réponses de l'assistant sont affichées progressivement dans l'application mobile via un endpoint SSE dédié (`/api/agent/chat/stream`).
 
 ```text
 Agent IA
    ↓
-Streaming SSE
-   ↓
-Backend Express
+Backend Express (endpoint SSE)
    ↓
 Application Mobile
    ↓
 Affichage progressif
 ```
+
+> Note technique : dans la version actuelle, le backend attend la réponse complète du modèle avant de la retransmettre progressivement (mot par mot) au client. Ce n'est pas encore un streaming token-par-token relayé en direct depuis le modèle IA — une évolution possible consiste à activer le streaming natif de l'API IA et à relayer les chunks au fil de l'eau.
 
 Le chat peut afficher :
 
@@ -299,6 +301,33 @@ Le chat peut afficher :
 - Inventer des données financières
 - Afficher les mots de passe
 - Prendre une décision à la place de l'utilisateur
+
+---
+
+# 🧾 Audit des interactions avec l'agent
+
+Chaque échange avec l'assistant IA est journalisé dans la table `AgentLog` :
+
+- Le message de l'utilisateur
+- Le nom de la fonction appelée (le cas échéant)
+- Les paramètres passés à la fonction
+- La réponse de l'assistant
+- L'entreprise concernée (`entrepriseId`)
+- La date et l'heure
+
+```text
+Colonne          Type
+──────────────────────────────
+id               UUID
+entrepriseId     UUID (FK)
+userMessage      TEXT
+functionCalled   VARCHAR (nullable)
+functionParams   JSONB (nullable)
+assistantReply   TEXT
+createdAt        TIMESTAMP
+```
+
+Cet audit permet de tracer les décisions prises par l'assistant et de vérifier qu'aucune fonction non autorisée n'a été appelée.
 
 ---
 
@@ -351,9 +380,13 @@ BizPulse utilise :
 - Variables d'environnement
 - Isolation des données par entreprise
 - Gestion globale des erreurs
-- Protection contre les tentatives de prompt injection
+- Filtrage basique des demandes sensibles (mots-clés) côté assistant
 
 Les clés API, mots de passe et autres secrets ne sont jamais enregistrés directement dans le code.
+
+> Limite connue : le filtrage des demandes sensibles repose sur une liste de mots-clés et ne constitue pas une protection complète contre le prompt injection. De même, la déconnexion (`logout`) invalide la session côté client mais ne révoque pas le refresh token côté serveur avant son expiration naturelle.
+
+> Limite connue : la base de données est initialisée avec `sequelize.sync({ alter: true })` plutôt qu'avec des migrations versionnées. Ce choix convient à un MVP, mais des migrations seraient nécessaires pour un environnement de production avec plusieurs développeurs.
 
 ---
 
@@ -380,9 +413,9 @@ Les clés API, mots de passe et autres secrets ne sont jamais enregistrés direc
 
 ## Intelligence artificielle
 
-- API LLM
+- API LLM (Groq, via SDK compatible OpenAI)
 - Function Calling
-- Streaming SSE
+- SSE (affichage progressif)
 
 ## Documentation
 
@@ -394,7 +427,7 @@ Les clés API, mots de passe et autres secrets ne sont jamais enregistrés direc
 ## DevOps
 
 - Docker
-- Docker Desktop
+- Docker Compose
 - Railway ou Render
 
 ---
@@ -502,6 +535,7 @@ BizPulse/
 │   ├── architecture.mermaid
 │   └── ai-sequence.mermaid
 │
+├── docker-compose.yml
 ├── prompts-journal.md
 ├── README.md
 └── .gitignore
@@ -556,16 +590,18 @@ Permet de :
 
 # 🗄️ Modèle de données
 
-Le projet utilise quatre entités principales.
+Le projet utilise cinq entités principales.
 
 ```text
 Entreprise
    │
    ├── Transaction
    │
-   └── Conversation
-           │
-           └── Message
+   ├── Conversation
+   │       │
+   │       └── Message
+   │
+   └── AgentLog
 ```
 
 ## Entreprise
@@ -612,6 +648,18 @@ Le champ `role` peut être :
 ```text
 user
 assistant
+```
+
+## AgentLog
+
+```text
+id
+entrepriseId
+userMessage
+functionCalled
+functionParams
+assistantReply
+createdAt
 ```
 
 ---
@@ -680,6 +728,9 @@ Exemple de réponse :
 
 ```http
 POST /api/agent/chat
+POST /api/agent/chat/stream
+GET  /api/agent/conversations
+GET  /api/agent/conversations/:id/messages
 ```
 
 Exemple :
@@ -736,10 +787,10 @@ Cette opération ne modifie aucune donnée dans PostgreSQL.
 
 - Node.js
 - npm
-- PostgreSQL
+- PostgreSQL (ou Docker, voir plus bas)
 - Expo
 - Docker Desktop
-- Une clé API pour le modèle IA utilisé
+- Une clé API Groq (ou autre modèle compatible OpenAI)
 
 ---
 
@@ -769,47 +820,72 @@ npx expo start
 
 # 🔑 Variables d'environnement
 
-Créer un fichier `.env` dans le dossier `backend`.
+Créer un fichier `.env` dans le dossier `backend` (voir `.env.example` pour le modèle exact).
 
 ```env
 PORT=5000
 
-DATABASE_URL=postgresql://user:password@localhost:5432/bizpulse
+DB_NAME=bizpulse
+DB_USER=postgres
+DB_PASSWORD=your_postgres_password
+DB_HOST=db
+DB_PORT=5432
 
-JWT_SECRET=change-me
+JWT_SECRET=your_jwt_secret
+JWT_REFRESH_SECRET=your_jwt_refresh_secret
 
-JWT_REFRESH_SECRET=change-me
+JWT_EXPIRES_IN=15m
+JWT_REFRESH_EXPIRES_IN=7d
 
-AI_API_KEY=your-api-key
+AI_API_KEY=your_groq_api_key
+AI_MODEL=llama-3.3-70b-versatile
+AI_BASE_URL=https://api.groq.com/openai/v1
 ```
 
-Le fichier `.env` ne doit jamais être ajouté dans Git.
+Le fichier `.env` ne doit jamais être ajouté dans Git, ni partagé dans une archive ou un zip du projet.
 
 ---
 
 # 🐳 Docker
 
-Le backend peut être exécuté avec Docker.
+Le projet est configuré avec **Docker Compose**, qui démarre à la fois le backend et la base PostgreSQL.
 
-Le projet utilise un fichier :
+Le projet utilise :
 
 ```text
-backend/Dockerfile
+docker-compose.yml       → orchestration backend + PostgreSQL
+backend/Dockerfile        → image du backend
 ```
 
-Construction de l'image :
+Démarrage depuis la racine du projet :
 
 ```bash
-docker build -t bizpulse-backend ./backend
+docker compose up --build
 ```
 
-Exécution du container :
+L'API est alors disponible sur :
+
+```text
+http://localhost:5000
+```
+
+Vérification :
+
+```text
+GET http://localhost:5000/api/health
+```
+
+Arrêt :
 
 ```bash
-docker run --env-file backend/.env -p 5000:5000 bizpulse-backend
+docker compose down
 ```
 
-Docker Compose n'est pas utilisé dans ce projet.
+Arrêt en supprimant aussi le volume PostgreSQL :
+
+```bash
+docker compose down -v
+```
 
 ---
 
@@ -827,6 +903,8 @@ Les tests permettront notamment de vérifier :
 - CRUD des transactions
 - Dashboard
 - Endpoints de l'assistant IA
+
+> À ce stade du MVP, ces vérifications sont manuelles (Postman) ; aucune suite de tests automatisés n'est encore en place.
 
 ---
 
@@ -913,7 +991,7 @@ Le backend pourra être déployé sur :
 
 La base PostgreSQL pourra également être hébergée sur une plateforme cloud.
 
-Les secrets et les clés API seront configurés grâce aux variables d'environnement.
+Les secrets et les clés API seront configurés grâce aux variables d'environnement (jamais commités dans le dépôt).
 
 ---
 
@@ -937,7 +1015,7 @@ Le MVP comprend :
 - `getExpensesByCategory()`
 - `simulateNewHire()`
 - Historique des conversations
-- Streaming SSE
+- Affichage progressif des réponses (SSE)
 - Validation avec Zod
 - Protection des routes privées
 - Isolation des données par entreprise
@@ -947,7 +1025,7 @@ Le MVP comprend :
 - Postman
 - Diagrammes
 - Prompt Journal
-- Docker
+- Docker / Docker Compose
 
 ---
 
@@ -959,6 +1037,14 @@ Le MVP comprend :
 - Base vectorielle
 - Nouveaux tools
 - Analyse financière avancée
+- Vrai streaming token-par-token relayé depuis le modèle IA
+
+## Sécurité
+
+- CORS configuré (allowlist d'origines)
+- Révocation des refresh tokens côté serveur (logout réel)
+- Protection anti-prompt-injection plus robuste
+- Rate limiting dédié sur les routes d'authentification
 
 ## Intégrations
 
