@@ -381,6 +381,7 @@ BizPulse utilise :
 - Isolation des données par entreprise
 - Gestion globale des erreurs
 - Filtrage basique des demandes sensibles (mots-clés) côté assistant
+- Vérification que chaque conversation et chaque transaction appartient à l'entreprise connectée
 
 Les clés API, mots de passe et autres secrets ne sont jamais enregistrés directement dans le code.
 
@@ -475,7 +476,8 @@ BizPulse/
 │   │   │   └── systemPrompt.js
 │   │   │
 │   │   ├── config/
-│   │   │   └── database.js
+│   │   │   ├── database.js
+│   │   │   └── swagger.js
 │   │   │
 │   │   ├── controllers/
 │   │   │   ├── agent.controller.js
@@ -485,13 +487,16 @@ BizPulse/
 │   │   │
 │   │   ├── middlewares/
 │   │   │   ├── auth.middleware.js
-│   │   │   └── error.middleware.js
+│   │   │   ├── error.middleware.js
+│   │   │   ├── filter.middleware.js
+│   │   │   └── validate.middleware.js
 │   │   │
 │   │   ├── models/
 │   │   │   ├── Entreprise.js
 │   │   │   ├── Transaction.js
 │   │   │   ├── Conversation.js
 │   │   │   ├── Message.js
+│   │   │   ├── AgentLog.js
 │   │   │   └── index.js
 │   │   │
 │   │   ├── routes/
@@ -510,6 +515,7 @@ BizPulse/
 │   │
 │   ├── .env
 │   ├── .env.example
+│   ├── .dockerignore
 │   ├── Dockerfile
 │   ├── package.json
 │   └── package-lock.json
@@ -533,7 +539,8 @@ BizPulse/
 │   ├── use-case.mermaid
 │   ├── class-diagram.mermaid
 │   ├── architecture.mermaid
-│   └── ai-sequence.mermaid
+│   ├── ai-sequence.mermaid
+│   └── BizPulse.postman_collection.json
 │
 ├── docker-compose.yml
 ├── prompts-journal.md
@@ -630,7 +637,7 @@ date
 ```text
 id
 entrepriseId
-dateCreation
+createdAt
 ```
 
 ## Message
@@ -640,7 +647,7 @@ id
 conversationId
 role
 contenu
-horodatage
+createdAt
 ```
 
 Le champ `role` peut être :
@@ -670,6 +677,8 @@ createdAt
 Entreprise 1 ───── 0..* Transaction
 
 Entreprise 1 ───── 0..* Conversation
+
+Entreprise 1 ───── 0..* AgentLog
 
 Conversation 1 ─── 0..* Message
 ```
@@ -741,6 +750,17 @@ Exemple :
 }
 ```
 
+Pour continuer une conversation existante, ajouter son identifiant :
+
+```json
+{
+  "message": "Et si j'embauche quelqu'un à 4 000 DH ?",
+  "conversationId": "identifiant-de-la-conversation"
+}
+```
+
+La réponse contient le texte de l'assistant et le `conversationId`. Le backend enregistre chaque échange dans les tables `Message` et `AgentLog`, et renvoie les 10 derniers messages à l'assistant pour qu'il garde le contexte.
+
 ---
 
 # 🔄 Exemple de Function Calling
@@ -801,6 +821,8 @@ cd backend
 
 npm install
 
+cp .env.example .env
+
 npm run dev
 ```
 
@@ -842,6 +864,8 @@ AI_MODEL=llama-3.3-70b-versatile
 AI_BASE_URL=https://api.groq.com/openai/v1
 ```
 
+Pour lancer le backend sans Docker, mettre `DB_HOST=localhost`. Avec Docker Compose, la base et l'hôte (`db`) sont configurés automatiquement.
+
 Le fichier `.env` ne doit jamais être ajouté dans Git, ni partagé dans une archive ou un zip du projet.
 
 ---
@@ -875,6 +899,12 @@ Vérification :
 GET http://localhost:5000/api/health
 ```
 
+Documentation Swagger :
+
+```text
+http://localhost:5000/api/docs
+```
+
 Arrêt :
 
 ```bash
@@ -891,9 +921,13 @@ docker compose down -v
 
 # 📚 Documentation API
 
-L'API sera documentée avec Swagger / OpenAPI.
+L'API est documentée avec Swagger / OpenAPI. Une fois le backend lancé, la documentation interactive est disponible sur :
 
-Postman sera utilisé pour tester les endpoints de l'application.
+```text
+http://localhost:5000/api/docs
+```
+
+Une collection Postman prête à l'emploi est fournie dans `docs/BizPulse.postman_collection.json`. Le token obtenu au login est enregistré automatiquement dans la collection.
 
 Les tests permettront notamment de vérifier :
 
