@@ -1,15 +1,20 @@
-import { z } from "zod";
+import { Router } from "express";
+import rateLimit from "express-rate-limit";
+import authController from "../controllers/auth.controller.js";
+import validate from "../middlewares/validate.middleware.js";
+import authValidation from "../validations/auth.validation.js";
 
-const registerSchema = z.object({
-  nom: z.string().min(1),
-  email: z.string().email(),
-  motDePasse: z.string().min(6),
-  secteur: z.string().optional()
+const router = Router();
+
+const loginLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 10,
+  message: { error: "Trop de tentatives, réessayez dans 15 minutes" }
 });
 
-const loginSchema = z.object({
-  email: z.string().email(),
-  motDePasse: z.string().min(1)
-});
+router.post("/register", validate(authValidation.registerSchema), authController.register);
+router.post("/login", loginLimiter, validate(authValidation.loginSchema), authController.login);
+router.post("/logout", authController.logout);
+router.post("/refresh", authController.refresh);
 
-export default { registerSchema, loginSchema };
+export default router;ccccccccccc

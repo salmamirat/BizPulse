@@ -1,0 +1,26 @@
+flowchart TD
+  Mobile[Application Mobile<br/>React Native / Expo]
+
+  Mobile -->|Axios / SSE| Backend[Backend Express]
+
+  subgraph Backend Node.js
+    Auth[Authentification<br/>JWT / bcrypt]
+    Transactions[Transactions<br/>CRUD]
+    Dashboard[Dashboard]
+    Agent[Agent IA]
+    Zod[Validation Zod]
+  end
+
+  Backend --> Auth
+  Backend --> Transactions
+  Backend --> Dashboard
+  Backend --> Agent
+  Backend --> Zod
+
+  Auth --> DB[(PostgreSQL)]
+  Transactions --> DB
+  Dashboard --> DB
+  Agent --> Tools[Function Calling<br/>getFinancialSummary<br/>getExpensesByCategory<br/>simulateNewHire]
+  Tools --> DB
+  Agent --> Groq[API Groq<br/>LLM compatible OpenAI]
+  Agent --> AgentLog[(AgentLog<br/>Audit)]

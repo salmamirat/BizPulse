@@ -1,5 +1,6 @@
 import { Router } from "express";
 import authMiddleware from "../middlewares/auth.middleware.js";
+import validateId from "../middlewares/validateId.middleware.js";
 import validate from "../middlewares/validate.middleware.js";
 import filterMessage from "../middlewares/filter.middleware.js";
 import agentValidation from "../validations/agent.validation.js";
@@ -12,6 +13,6 @@ router.use(authMiddleware);
 router.post("/chat", validate(agentValidation.agentMessageSchema), filterMessage, agentController.chat);
 router.post("/chat/stream", validate(agentValidation.agentMessageSchema), filterMessage, agentController.chatStream);
 router.get("/conversations", agentController.getConversations);
-router.get("/conversations/:id/messages", agentController.getMessages);
+router.get("/conversations/:id/messages", validateId, agentController.getMessages);
 
 export default router;

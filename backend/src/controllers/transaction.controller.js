@@ -15,7 +15,13 @@ async function createTransaction(req, res) {
 }
 
 async function getTransactions(req, res) {
-  const { page = 1, limit = 10, type, sort = "date" } = req.query;
+  const { type, sort = "date" } = req.query;
+  const page = Math.max(parseInt(req.query.page) || 1, 1);
+  const limit = Math.min(Math.max(parseInt(req.query.limit) || 10, 1), 100);
+
+  if (type && !["revenu", "depense"].includes(type)) {
+    return res.status(400).json({ error: "Type invalide (revenu ou depense)" });
+  }
 
   const allowedSort = ["date", "montant", "categorie"];
   const sortField = allowedSort.includes(sort) ? sort : "date";
@@ -29,13 +35,14 @@ async function getTransactions(req, res) {
   const transactions = await Transaction.findAndCountAll({
     where,
     order: [[sortField, "DESC"]],
-    limit: Number(limit),
-    offset: (Number(page) - 1) * Number(limit)
+    limit,
+    offset: (page - 1) * limit
   });
 
   res.json({
     total: transactions.count,
-    page: Number(page),
+    page,
+    limit,
     data: transactions.rows
   });
 }

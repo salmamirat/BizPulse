@@ -1,0 +1,22 @@
+sequenceDiagram
+  participant U as Utilisateur
+  participant M as Application Mobile
+  participant B as Backend Express
+  participant A as Agent IA (Groq)
+  participant F as Fonction metier
+  participant D as PostgreSQL
+
+  U->>M: Pose une question
+  M->>B: POST /api/agent/chat
+  B->>A: Envoie message + tools disponibles
+  A->>A: Choisit une fonction a appeler
+  A-->>B: tool_call (nom + parametres)
+  B->>F: Execute la fonction (ex: simulateNewHire)
+  F->>D: Lecture des transactions
+  D-->>F: Donnees
+  F-->>B: Resultat calcule
+  B->>A: Renvoie le resultat de la fonction
+  A-->>B: Reponse finale en langage naturel
+  B->>D: Enregistre l'echange dans AgentLog
+  B-->>M: Reponse (JSON ou SSE)
+  M-->>U: Affiche la reponse

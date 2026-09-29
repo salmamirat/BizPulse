@@ -1,0 +1,46 @@
+classDiagram
+  class Entreprise {
+    +UUID id
+    +string nom
+    +string email
+    +string motDePasseHash
+    +string secteur
+  }
+
+  class Transaction {
+    +UUID id
+    +UUID entrepriseId
+    +enum type
+    +decimal montant
+    +string categorie
+    +date date
+  }
+
+  class Conversation {
+    +UUID id
+    +UUID entrepriseId
+    +datetime createdAt
+  }
+
+  class Message {
+    +UUID id
+    +UUID conversationId
+    +enum role
+    +text contenu
+    +datetime createdAt
+  }
+
+  class AgentLog {
+    +UUID id
+    +UUID entrepriseId
+    +text userMessage
+    +string functionCalled
+    +json functionParams
+    +text assistantReply
+    +datetime createdAt
+  }
+
+  Entreprise "1" --> "0..*" Transaction : possede
+  Entreprise "1" --> "0..*" Conversation : possede
+  Entreprise "1" --> "0..*" AgentLog : possede
+  Conversation "1" --> "0..*" Message : contient

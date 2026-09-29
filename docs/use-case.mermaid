@@ -1,0 +1,20 @@
+flowchart LR
+  Dirigeant((Dirigeant))
+
+  Dirigeant --> UC1[Creer un compte]
+  Dirigeant --> UC2[Se connecter]
+  Dirigeant --> UC3[Se deconnecter]
+  Dirigeant --> UC4[Ajouter une transaction]
+  Dirigeant --> UC5[Consulter les transactions]
+  Dirigeant --> UC6[Modifier une transaction]
+  Dirigeant --> UC7[Supprimer une transaction]
+  Dirigeant --> UC8[Consulter le dashboard]
+  Dirigeant --> UC9[Poser une question a l'assistant]
+  Dirigeant --> UC10[Realiser une simulation]
+  Dirigeant --> UC11[Consulter l'historique des conversations]
+
+  UC9 -.include.-> UC12[Function Calling]
+  UC10 -.include.-> UC12
+  UC12 --> UC13[getFinancialSummary]
+  UC12 --> UC14[getExpensesByCategory]
+  UC12 --> UC15[simulateNewHire]
