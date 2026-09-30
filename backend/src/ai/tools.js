@@ -1,8 +1,53 @@
+import { Op } from "sequelize";
 import { Transaction } from "../models/index.js";
 
-async function getFinancialSummary(entrepriseId) {
+function pad(n) {
+  return String(n).padStart(2, "0");
+}
+
+function formatDate(y, m, d) {
+  return `${y}-${pad(m + 1)}-${pad(d)}`;
+}
+
+function getDatesFromPeriode(periode) {
+  const now = new Date();
+  const y = now.getFullYear();
+  const m = now.getMonth();
+
+  if (periode === "ce_mois") {
+    const lastDay = new Date(y, m + 1, 0).getDate();
+    return { dateDebut: formatDate(y, m, 1), dateFin: formatDate(y, m, lastDay) };
+  }
+
+  if (periode === "mois_dernier") {
+    const previous = new Date(y, m - 1, 1);
+    const py = previous.getFullYear();
+    const pm = previous.getMonth();
+    const lastDay = new Date(y, m, 0).getDate();
+    return { dateDebut: formatDate(py, pm, 1), dateFin: formatDate(py, pm, lastDay) };
+  }
+
+  return { dateDebut: null, dateFin: null };
+}
+
+function buildWhere(entrepriseId, periode, type) {
+  const where = { entrepriseId };
+  const { dateDebut, dateFin } = getDatesFromPeriode(periode);
+
+  if (type) {
+    where.type = type;
+  }
+
+  if (dateDebut && dateFin) {
+    where.date = { [Op.between]: [dateDebut, dateFin] };
+  }
+
+  return where;
+}
+
+async function getFinancialSummary(entrepriseId, periode = "tout") {
   const transactions = await Transaction.findAll({
-    where: { entrepriseId }
+    where: buildWhere(entrepriseId, periode)
   });
 
   let revenus = 0;
@@ -17,49 +62,67 @@ async function getFinancialSummary(entrepriseId) {
   });
 
   return {
+    devise: "DH",
+    periode,
+    ...getDatesFromPeriode(periode),
     revenus,
     depenses,
     solde: revenus - depenses
   };
 }
 
-async function getExpensesByCategory(entrepriseId) {
+async function getExpensesByCategory(entrepriseId, periode = "tout") {
   const transactions = await Transaction.findAll({
-    where: { entrepriseId, type: "depense" }
+    where: buildWhere(entrepriseId, periode, "depense")
   });
 
-  const result = {};
+  const parCategorie = {};
 
   transactions.forEach((t) => {
-    if (!result[t.categorie]) {
-      result[t.categorie] = 0;
+    if (!parCategorie[t.categorie]) {
+      parCategorie[t.categorie] = 0;
     }
-    result[t.categorie] += Number(t.montant);
+    parCategorie[t.categorie] += Number(t.montant);
   });
 
-  return result;
+  return {
+    devise: "DH",
+    periode,
+    ...getDatesFromPeriode(periode),
+    parCategorie
+  };
 }
 
 async function simulateNewHire(entrepriseId, salaire) {
-  const summary = await getFinancialSummary(entrepriseId);
+  const summary = await getFinancialSummary(entrepriseId, "tout");
 
   return {
+    devise: "DH",
     soldeActuel: summary.solde,
     salaireSimule: salaire,
     soldeEstime: summary.solde - salaire
   };
 }
 
+const periodeProperty = {
+  periode: {
+    type: "string",
+    enum: ["tout", "ce_mois", "mois_dernier"],
+    description:
+      "Période demandée : 'ce_mois' pour le mois en cours, 'mois_dernier' pour le mois précédent, 'tout' si aucune période n'est précisée."
+  }
+};
+
 const toolsSchema = [
   {
     type: "function",
     function: {
       name: "getFinancialSummary",
-      description: "Retourne le résumé financier de l'entreprise",
+      description: "Retourne le résumé financier de l'entreprise (revenus, dépenses, solde) pour une période",
       parameters: {
         type: "object",
-        properties: {},
-        required: []
+        properties: periodeProperty,
+        required: ["periode"]
       }
     }
   },
@@ -67,11 +130,11 @@ const toolsSchema = [
     type: "function",
     function: {
       name: "getExpensesByCategory",
-      description: "Retourne les dépenses regroupées par catégorie",
+      description: "Retourne les dépenses regroupées par catégorie pour une période",
       parameters: {
         type: "object",
-        properties: {},
-        required: []
+        properties: periodeProperty,
+        required: ["periode"]
       }
     }
   },
@@ -93,11 +156,11 @@ const toolsSchema = [
 
 async function executeFunctionByName(name, args, entrepriseId) {
   if (name === "getFinancialSummary") {
-    return getFinancialSummary(entrepriseId);
+    return getFinancialSummary(entrepriseId, args.periode);
   }
 
   if (name === "getExpensesByCategory") {
-    return getExpensesByCategory(entrepriseId);
+    return getExpensesByCategory(entrepriseId, args.periode);
   }
 
   if (name === "simulateNewHire") {

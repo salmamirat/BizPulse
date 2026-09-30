@@ -8,8 +8,12 @@ const groq = new OpenAI({
 });
 
 async function askAgent(userMessage, entrepriseId, history = []) {
+  const today = new Date().toISOString().slice(0, 10);
+
   const messages = [
-    { role: "system", content: systemPrompt },
+    {
+      role: "system",
+content: `${systemPrompt}\nDate d'aujourd'hui : ${today}. Utilise toujours le paramètre "periode" des fonctions : "ce_mois", "mois_dernier" ou "tout".`    },
     ...history,
     { role: "user", content: userMessage }
   ];

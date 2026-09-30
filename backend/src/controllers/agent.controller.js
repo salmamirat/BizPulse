@@ -32,8 +32,14 @@ async function runChat(req, res) {
 
     history = await getHistory(conversation.id);
   }
-
-  const result = await askAgent(message, entrepriseId, history);
+let result;
+try {
+  result = await askAgent(message, entrepriseId, history);
+} catch (err) {
+  console.error("Erreur IA :", err.message);
+  res.status(502).json({ error: "L'assistant IA est indisponible, réessayez plus tard" });
+  return null;
+}
 
   if (!conversation) {
     conversation = await Conversation.create({ entrepriseId });
