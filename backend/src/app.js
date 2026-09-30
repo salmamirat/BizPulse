@@ -1,7 +1,8 @@
 import express from "express";
 import rateLimit from "express-rate-limit";
-import swaggerUi from "swagger-ui-express";
-import swaggerDocument from "./config/swagger.js";
+
+import { apiReference } from "@scalar/express-api-reference";
+import openApiDocument from "./config/openapi.js";
 import authRoutes from "./routes/auth.routes.js";
 import transactionRoutes from "./routes/transaction.routes.js";
 import dashboardRoutes from "./routes/dashboard.routes.js";
@@ -23,7 +24,15 @@ app.get("/api/health", (req, res) => {
   res.json({ status: "ok" });
 });
 
-app.use("/api/docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+
+app.use(
+  "/api/scalar",
+  apiReference({
+    spec: {
+      content: openApiDocument,
+    },
+  })
+);
 
 app.use("/api/auth", authRoutes);
 app.use("/api/transactions", transactionRoutes);
