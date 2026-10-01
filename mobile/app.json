@@ -1,0 +1,1 @@
+{"expo":{"name":"BizPulse","slug":"bizpulse","version":"1.0.0","orientation":"portrait","scheme":"bizpulse","plugins":["expo-router","expo-secure-store"],"android":{"package":"com.bizpulse.mobile"},"experiments":{"typedRoutes":true}}}
