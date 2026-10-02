@@ -46,7 +46,7 @@ Pour lancer les tests automatisés :
 ```bash
 cd backend && npm test
 ```
-**Attention :** Les tests automatisés couvrent uniquement la logique des dates (fichier `dates.js`). Tout le reste de l'application (backend et mobile) est testé manuellement. Vous pouvez utiliser la collection Postman fournie dans `docs/BizPulse.postman_collection.json` pour tester l'API.
+**Attention :** Les tests automatisés couvrent uniquement la logique des dates (fichier `dates.js`). Tout le reste de l'application (backend et mobile) est testé manuellement. L'API se teste à la main avec la documentation Scalar : http://localhost:5000/api/scalar
 
 ## Limites connues
 - Le streaming de l'IA renvoie l'intégralité de la réponse mot par mot après avoir reçu la réponse complète du LLM.
@@ -64,5 +64,4 @@ Voici les fichiers clés du projet :
 - `backend/src/ai/dates.js` : Logique de calcul des dates
 - `mobile/.env.example` : Exemple de configuration mobile
 - `mobile/assets/splash.mp4` : Vidéo de démarrage
-- `docs/BizPulse.postman_collection.json` : Collection Postman
 - `prompts-journal.md` : Journal des prompts utilisés
