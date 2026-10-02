@@ -65,5 +65,4 @@ Voici les fichiers clés du projet :
 - `mobile/.env.example` : Exemple de configuration mobile
 - `mobile/assets/splash.mp4` : Vidéo de démarrage
 - `docs/BizPulse.postman_collection.json` : Collection Postman
-- `CHANGES.md` : Liste des modifications apportées
 - `prompts-journal.md` : Journal des prompts utilisés
