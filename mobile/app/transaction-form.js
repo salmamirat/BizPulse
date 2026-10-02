@@ -8,16 +8,23 @@ import Button from "../components/Button";
 import Card from "../components/Card";
 import { createTransaction, deleteTransaction, updateTransaction } from "../services/api";
 
-const categories = ["Vente", "Loyer", "Transport", "Salaires", "Fournitures", "Marketing", "Autre"];
+const categoriesRevenu = ["Vente", "Service", "Autre"];
+const categoriesDepense = ["Loyer", "Transport", "Salaires", "Fournitures", "Marketing", "Autre"];
 
 export default function TransactionForm() {
   const router = useRouter();
   const params = useLocalSearchParams();
   const editing = Boolean(params.id);
+  
+  const defaultDate = () => {
+    const d = new Date();
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  };
+
   const [type, setType] = useState(params.type || "revenu");
   const [montant, setMontant] = useState(params.montant ? String(params.montant) : "");
-  const [categorie, setCategorie] = useState(params.categorie || "Marketing");
-  const [date, setDate] = useState(params.date || new Date().toISOString().slice(0, 10));
+  const [categorie, setCategorie] = useState(params.categorie || "");
+  const [date, setDate] = useState(params.date || defaultDate());
   const [loading, setLoading] = useState(false);
 
   async function save() {
@@ -62,10 +69,10 @@ export default function TransactionForm() {
 
           <Card>
             <View style={styles.types}>
-              <Pressable onPress={() => setType("revenu")} style={[styles.type, type === "revenu" && styles.revenueActive]}>
+              <Pressable onPress={() => { setType("revenu"); setCategorie(""); }} style={[styles.type, type === "revenu" && styles.revenueActive]}>
                 <Text style={[styles.typeText, type === "revenu" && styles.revenueText]}>↓  Revenu</Text>
               </Pressable>
-              <Pressable onPress={() => setType("depense")} style={[styles.type, type === "depense" && styles.expenseActive]}>
+              <Pressable onPress={() => { setType("depense"); setCategorie(""); }} style={[styles.type, type === "depense" && styles.expenseActive]}>
                 <Text style={[styles.typeText, type === "depense" && styles.expenseText]}>↑  Dépense</Text>
               </Pressable>
             </View>
@@ -74,7 +81,7 @@ export default function TransactionForm() {
 
             <Text style={styles.label}>Catégorie</Text>
             <View style={styles.categories}>
-              {categories.map((item) => (
+              {(type === "revenu" ? categoriesRevenu : categoriesDepense).map((item) => (
                 <Pressable key={item} onPress={() => setCategorie(item)} style={[styles.category, categorie === item && styles.categoryActive]}>
                   <Text style={[styles.categoryText, categorie === item && styles.categoryActiveText]}>{item}</Text>
                 </Pressable>

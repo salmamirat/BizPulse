@@ -5,12 +5,10 @@ import { Link, useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import Input from "../components/Input";
 import Button from "../components/Button";
-import useAuthStore from "../store/authStore";
 import { register } from "../services/api";
 
 export default function Register() {
   const router = useRouter();
-  const saveProfile = useAuthStore((state) => state.saveProfile);
   const [nom, setNom] = useState("");
   const [email, setEmail] = useState("");
   const [motDePasse, setMotDePasse] = useState("");
@@ -29,8 +27,7 @@ export default function Register() {
 
     try {
       setLoading(true);
-      const data = await register(nom.trim(), email.trim(), motDePasse, secteur.trim() || undefined);
-      await saveProfile({ nom: data.nom, email: data.email, secteur: secteur.trim() });
+      await register(nom.trim(), email.trim(), motDePasse, secteur.trim() || undefined);
       Alert.alert("Compte créé", "Votre compte a été créé. Vous pouvez maintenant vous connecter.");
       router.replace("/login");
     } catch (error) {

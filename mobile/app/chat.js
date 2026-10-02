@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useCallback, useState, useRef, useEffect } from "react";
 import { ActivityIndicator, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 import { useFocusEffect } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
@@ -7,27 +7,39 @@ import BottomNav from "../components/BottomNav";
 import { getConversations, getMessages, streamMessage } from "../services/api";
 
 export default function Chat() {
+  const scrollRef = useRef(null);
   const [conversationId, setConversationId] = useState(null);
   const [messages, setMessages] = useState([]);
   const [question, setQuestion] = useState("");
   const [sending, setSending] = useState(false);
   const [conversations, setConversations] = useState([]);
+  const [mounted, setMounted] = useState(false);
 
-  const load = useCallback(async () => {
+  const fetchConversations = useCallback(async () => {
     try {
       const list = await getConversations();
       setConversations(list || []);
+      return list || [];
+    } catch {
+      setConversations([]);
+      return [];
+    }
+  }, []);
+
+  useEffect(() => {
+    (async () => {
+      const list = await fetchConversations();
       if (list?.[0]) {
         setConversationId(list[0].id);
         setMessages(await getMessages(list[0].id));
       }
-    } catch {
-      setConversations([]);
-      setMessages([]);
-    }
-  }, []);
+      setMounted(true);
+    })();
+  }, [fetchConversations]);
 
-  useFocusEffect(useCallback(() => { load(); }, [load]));
+  useFocusEffect(useCallback(() => {
+    if (mounted) fetchConversations();
+  }, [mounted, fetchConversations]));
 
   async function openConversation(id) {
     try {
@@ -80,11 +92,17 @@ export default function Chat() {
           </View>
           <View style={styles.actions}>
             <Pressable onPress={newConversation} style={styles.newButton}><Text style={styles.newText}>＋ Nouveau</Text></Pressable>
-            <Pressable onPress={load} hitSlop={8}><Ionicons name="refresh" size={17} color="#6D1B3B" /></Pressable>
+            <Pressable onPress={fetchConversations} hitSlop={8}><Ionicons name="refresh" size={17} color="#6D1B3B" /></Pressable>
           </View>
         </View>
 
-        <ScrollView style={styles.scroll} contentContainerStyle={styles.messages} showsVerticalScrollIndicator={false}>
+        <ScrollView 
+          ref={scrollRef}
+          onContentSizeChange={() => scrollRef.current?.scrollToEnd({ animated: true })}
+          style={styles.scroll} 
+          contentContainerStyle={styles.messages} 
+          showsVerticalScrollIndicator={false}
+        >
           {conversations.length > 0 && (
             <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.historyRow}>
               {conversations.slice(0, 3).map((item) => (
@@ -111,14 +129,16 @@ export default function Chat() {
           ))}
         </ScrollView>
 
-        <View style={styles.suggestions}>
-          <Text style={styles.suggestTitle}>Suggestions rapides</Text>
-          <View style={styles.suggestList}>
-            <Pressable onPress={() => send("Résume ma situation financière")} style={styles.suggestion}><Text style={styles.suggestionText}>Résume ma situation financière</Text></Pressable>
-            <Pressable onPress={() => send("Quelle catégorie coûte le plus ?")} style={styles.suggestion}><Text style={styles.suggestionText}>Quelle catégorie coûte le plus ?</Text></Pressable>
-            <Pressable onPress={() => send("Simule une embauche à 4 000 DH")} style={styles.suggestion}><Text style={styles.suggestionText}>Simule une embauche à 4 000 DH</Text></Pressable>
+        {messages.length === 0 && (
+          <View style={styles.suggestions}>
+            <Text style={styles.suggestTitle}>Suggestions rapides</Text>
+            <View style={styles.suggestList}>
+              <Pressable onPress={() => send("Résume ma situation financière")} style={styles.suggestion}><Text style={styles.suggestionText}>Résume ma situation financière</Text></Pressable>
+              <Pressable onPress={() => send("Quelle catégorie coûte le plus ?")} style={styles.suggestion}><Text style={styles.suggestionText}>Quelle catégorie coûte le plus ?</Text></Pressable>
+              <Pressable onPress={() => send("Simule une embauche à 4 000 DH")} style={styles.suggestion}><Text style={styles.suggestionText}>Simule une embauche à 4 000 DH</Text></Pressable>
+            </View>
           </View>
-        </View>
+        )}
 
         <View style={styles.inputRow}>
           <TextInput value={question} onChangeText={setQuestion} placeholder="Posez votre question financière…" placeholderTextColor="#77736D" style={styles.input} multiline />

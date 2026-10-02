@@ -86,4 +86,17 @@ async function logout(req, res) {
   res.json({ message: "Déconnexion réussie" });
 }
 
-export default { register, login, refresh, logout };
+async function getMe(req, res) {
+  const entreprise = await Entreprise.findByPk(req.entrepriseId);
+  if (!entreprise) {
+    return res.status(404).json({ error: "Entreprise introuvable" });
+  }
+  res.json({
+    id: entreprise.id,
+    nom: entreprise.nom,
+    email: entreprise.email,
+    secteur: entreprise.secteur
+  });
+}
+
+export default { register, login, refresh, logout, getMe };

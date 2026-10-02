@@ -1,7 +1,7 @@
 import { Redirect } from "expo-router";
 import { useEffect, useState } from "react";
 import * as SecureStore from "expo-secure-store";
-import { ActivityIndicator, StyleSheet, View } from "react-native";
+import { ActivityIndicator, StyleSheet, View, Pressable } from "react-native";
 import { useVideoPlayer, VideoView } from "expo-video";
 
 export default function Index() {
@@ -12,28 +12,33 @@ export default function Index() {
     SecureStore.getItemAsync("accessToken").then((token) => setLogged(Boolean(token)));
   }, []);
 
-  const player = useVideoPlayer(require('../assets/Create_logo_splash_screen_intro_20261001152559.mp4'), player => {
+  const player = useVideoPlayer(require('../assets/splash-video.mp4'), player => {
     player.play();
   });
 
   useEffect(() => {
+    const timer = setTimeout(() => setVideoFinished(true), 6000);
     const subscription = player.addListener('playToEnd', () => {
       setVideoFinished(true);
     });
     return () => {
+      clearTimeout(timer);
       subscription.remove();
     };
   }, [player]);
 
   if (!videoFinished) {
     return (
-      <View style={styles.container}>
-        <VideoView
-          player={player}
-          style={styles.video}
-          contentFit="contain"
-        />
-      </View>
+      <Pressable style={styles.container} onPress={() => setVideoFinished(true)}>
+        <View pointerEvents="none" style={styles.videoContainer}>
+          <VideoView
+            player={player}
+            style={styles.video}
+            contentFit="contain"
+            nativeControls={false}
+          />
+        </View>
+      </Pressable>
     );
   }
 
@@ -47,6 +52,10 @@ const styles = StyleSheet.create({
     backgroundColor: '#000000',
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  videoContainer: {
+    width: '100%',
+    height: '100%',
   },
   video: {
     width: '100%',

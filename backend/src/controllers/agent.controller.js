@@ -94,10 +94,11 @@ async function chatStream(req, res) {
 
   res.write(`event: conversation\ndata: ${data.conversation.id}\n\n`);
 
-  const words = data.result.reply.split(" ");
+  // Découpe la réponse en gardant espaces et sauts de ligne
+  const words = data.result.reply.match(/\S+\s*/g) || [];
 
   for (const word of words) {
-    res.write(`data: ${word}\n\n`);
+    res.write(`data: ${JSON.stringify(word)}\n\n`);
     await new Promise((resolve) => setTimeout(resolve, 50));
   }
 

@@ -1,34 +1,6 @@
 import { Op } from "sequelize";
 import { Transaction } from "../models/index.js";
-
-function pad(n) {
-  return String(n).padStart(2, "0");
-}
-
-function formatDate(y, m, d) {
-  return `${y}-${pad(m + 1)}-${pad(d)}`;
-}
-
-function getDatesFromPeriode(periode) {
-  const now = new Date();
-  const y = now.getFullYear();
-  const m = now.getMonth();
-
-  if (periode === "ce_mois") {
-    const lastDay = new Date(y, m + 1, 0).getDate();
-    return { dateDebut: formatDate(y, m, 1), dateFin: formatDate(y, m, lastDay) };
-  }
-
-  if (periode === "mois_dernier") {
-    const previous = new Date(y, m - 1, 1);
-    const py = previous.getFullYear();
-    const pm = previous.getMonth();
-    const lastDay = new Date(y, m, 0).getDate();
-    return { dateDebut: formatDate(py, pm, 1), dateFin: formatDate(py, pm, lastDay) };
-  }
-
-  return { dateDebut: null, dateFin: null };
-}
+import { getDatesFromPeriode } from "./dates.js";
 
 function buildWhere(entrepriseId, periode, type) {
   const where = { entrepriseId };
@@ -94,13 +66,19 @@ async function getExpensesByCategory(entrepriseId, periode = "tout") {
 }
 
 async function simulateNewHire(entrepriseId, salaire) {
-  const summary = await getFinancialSummary(entrepriseId, "tout");
+  const summaryTout = await getFinancialSummary(entrepriseId, "tout");
+  const summaryMois = await getFinancialSummary(entrepriseId, "ce_mois");
+
+  const soldeActuel = summaryTout.solde;
+  const netCeMois = summaryMois.solde;
 
   return {
     devise: "DH",
-    soldeActuel: summary.solde,
+    soldeActuel,
     salaireSimule: salaire,
-    soldeEstime: summary.solde - salaire
+    netCeMoisActuel: netCeMois,
+    netCeMoisApresEmbauche: netCeMois - salaire,
+    soldeApresUnMois: soldeActuel - salaire
   };
 }
 
@@ -164,6 +142,9 @@ async function executeFunctionByName(name, args, entrepriseId) {
   }
 
   if (name === "simulateNewHire") {
+    if (typeof args.salaire !== "number" || args.salaire <= 0) {
+      return { error: "Salaire invalide" };
+    }
     return simulateNewHire(entrepriseId, args.salaire);
   }
 

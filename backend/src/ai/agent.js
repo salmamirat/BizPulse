@@ -20,6 +20,7 @@ content: `${systemPrompt}\nDate d'aujourd'hui : ${today}. Utilise toujours le pa
 
   const firstResponse = await groq.chat.completions.create({
     model: process.env.AI_MODEL,
+    temperature: 0.2,
     messages,
     tools: tools.toolsSchema
   });
@@ -36,12 +37,18 @@ content: `${systemPrompt}\nDate d'aujourd'hui : ${today}. Utilise toujours le pa
   }
 
   const functionName = toolCall.function.name;
-  const args = JSON.parse(toolCall.function.arguments || "{}");
+  let args = {};
+  try {
+    args = JSON.parse(toolCall.function.arguments || "{}");
+  } catch (e) {
+    args = {};
+  }
 
   const functionResult = await tools.executeFunctionByName(functionName, args, entrepriseId);
 
   const secondResponse = await groq.chat.completions.create({
     model: process.env.AI_MODEL,
+    temperature: 0.2,
     messages: [
       ...messages,
       { ...responseMessage, tool_calls: [toolCall] },

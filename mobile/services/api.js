@@ -1,8 +1,9 @@
 import axios from "axios";
 import * as SecureStore from "expo-secure-store";
 import useAuthStore from "../store/authStore";
+import { fetch as expoFetch } from "expo/fetch";
 
-const API_URL = "http://10.0.2.2:5000/api";
+const API_URL = process.env.EXPO_PUBLIC_API_URL || "http://10.0.2.2:5000/api";
 
 const api = axios.create({
   baseURL: API_URL,
@@ -86,8 +87,18 @@ export async function logout() {
   } catch {}
 }
 
+export async function getMe() {
+  const { data } = await api.get("/auth/me");
+  return data;
+}
+
 export async function getDashboard() {
   const { data } = await api.get("/dashboard/summary");
+  return data;
+}
+
+export async function getCategories() {
+  const { data } = await api.get("/dashboard/categories");
   return data;
 }
 
@@ -131,7 +142,9 @@ export async function sendMessage(message, conversationId) {
 
 export async function streamMessage(message, conversationId, onWord, onConversation) {
   const token = await SecureStore.getItemAsync("accessToken");
-  const response = await fetch(`${API_URL}/agent/chat/stream`, {
+  
+  // Utilise expoFetch pour supporter le streaming
+  const response = await expoFetch(`${API_URL}/agent/chat/stream`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -147,10 +160,30 @@ export async function streamMessage(message, conversationId, onWord, onConversat
     throw new Error("L'assistant IA est indisponible");
   }
 
+  // Parse les morceaux reçus (SSE)
+  const processPart = (part) => {
+    if (part.startsWith("event: conversation")) {
+      const line = part.split("data: ")[1];
+      if (line) onConversation(line.trim());
+    } else if (part.startsWith("data: ")) {
+      const text = part.substring(6);
+      if (text === "[DONE]") return;
+      try {
+        const parsed = JSON.parse(text);
+        onWord(parsed);
+      } catch (e) {
+        onWord(text);
+      }
+    }
+  };
+
+  // Si pas de reader, on lit tout d'un coup
   if (!response.body?.getReader) {
-    const data = await sendMessage(message, conversationId);
-    onConversation(data.conversationId);
-    onWord(data.reply);
+    const text = await response.text();
+    const parts = text.split("\n\n");
+    for (const part of parts) {
+      if (part) processPart(part);
+    }
     return;
   }
 
@@ -167,15 +200,7 @@ export async function streamMessage(message, conversationId, onWord, onConversat
     buffer = parts.pop() || "";
 
     for (const part of parts) {
-      if (part.startsWith("event: conversation")) {
-        const line = part.split("data: ")[1];
-        if (line) onConversation(line.trim());
-      }
-
-      if (part.startsWith("data: ")) {
-        const text = part.replace("data: ", "").trim();
-        if (text && text !== "[DONE]") onWord(`${text} `);
-      }
+      if (part) processPart(part);
     }
   }
 }

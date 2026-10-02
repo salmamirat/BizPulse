@@ -16,6 +16,16 @@ const useAuthStore = create((set) => ({
     let profile = null;
     try { profile = profileText ? JSON.parse(profileText) : null; } catch { profile = null; }
     set({ accessToken, refreshToken, profile, loading: false });
+
+    // Met à jour le profil si un token existe (ignore si échec)
+    if (accessToken) {
+      try {
+        const { getMe } = require("../services/api");
+        const meData = await getMe();
+        await SecureStore.setItemAsync(PROFILE_KEY, JSON.stringify(meData));
+        set({ profile: meData });
+      } catch (e) {}
+    }
   },
 
   saveSession: async (accessToken, refreshToken, profile) => {

@@ -1,12 +1,11 @@
 import { useState } from "react";
-import { Alert, KeyboardAvoidingView, Platform, StyleSheet, Text, View, Pressable } from "react-native";
+import { Alert, KeyboardAvoidingView, Platform, StyleSheet, Text, View } from "react-native";
 import { Image } from "expo-image";
 import { Link, useRouter } from "expo-router";
-import { Ionicons } from "@expo/vector-icons";
 import Input from "../components/Input";
 import Button from "../components/Button";
 import useAuthStore from "../store/authStore";
-import { login } from "../services/api";
+import { login, getMe } from "../services/api";
 
 export default function Login() {
   const router = useRouter();
@@ -24,16 +23,14 @@ export default function Login() {
     try {
       setLoading(true);
       const data = await login(email.trim(), motDePasse);
-const oldProfile = useAuthStore.getState().profile;
 
-await saveSession(
-  data.accessToken,
-  data.refreshToken,
-  {
-    ...oldProfile,
-    email: email.trim()
-  }
-);
+      // On sauvegarde d'abord les tokens pour que getMe() puisse les utiliser
+      await saveSession(data.accessToken, data.refreshToken, {});
+      
+      // On récupère le vrai profil du backend
+      const meData = await getMe();
+      await saveSession(data.accessToken, data.refreshToken, meData);
+
       router.replace("/dashboard");
     } catch (error) {
       Alert.alert("Connexion", error.response?.data?.error || "Impossible de se connecter.");
@@ -64,7 +61,6 @@ await saveSession(
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: "#FAF7F5" },
   content: { flex: 1, justifyContent: "center", paddingHorizontal: 20 },
-  backButton: { position: "absolute", top: 60, left: 20, zIndex: 10 },
   logoImage: { height: 80, width: 280, alignSelf: "center", marginBottom: 24 },
   subtitle: { color: "#77736D", fontSize: 16, fontWeight: "600", marginBottom: 22 },
   form: { width: "100%" },

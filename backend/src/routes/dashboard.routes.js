@@ -7,5 +7,6 @@ const router = Router();
 router.use(authMiddleware);
 
 router.get("/summary", dashboardController.getSummary);
+router.get("/categories", dashboardController.getCategories);
 
 export default router;

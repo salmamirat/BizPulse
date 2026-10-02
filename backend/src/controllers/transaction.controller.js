@@ -34,7 +34,7 @@ async function getTransactions(req, res) {
 
   const transactions = await Transaction.findAndCountAll({
     where,
-    order: [[sortField, "DESC"]],
+    order: [[sortField, "DESC"], ["createdAt", "DESC"]],
     limit,
     offset: (page - 1) * limit
   });

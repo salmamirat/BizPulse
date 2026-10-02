@@ -131,6 +131,14 @@ const swaggerDocument = {
         responses: { 200: { description: "revenus, depenses, solde" } }
       }
     },
+    "/api/dashboard/categories": {
+      get: {
+        tags: ["Dashboard"],
+        summary: "Dépenses par catégorie",
+        security: bearer,
+        responses: { 200: { description: "Top 5 des dépenses par catégorie" } }
+      }
+    },
     "/api/agent/chat": {
       post: {
         tags: ["Agent IA"],

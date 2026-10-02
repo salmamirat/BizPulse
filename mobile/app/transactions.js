@@ -1,11 +1,12 @@
 import { useCallback, useState } from "react";
-import { ActivityIndicator, Alert, Pressable, ScrollView, StyleSheet, Text, View, Image } from "react-native";
+import { ActivityIndicator, Alert, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { useFocusEffect, useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Card from "../components/Card";
 import TransactionItem from "../components/TransactionItem";
 import BottomNav from "../components/BottomNav";
+import Button from "../components/Button";
 import { deleteTransaction, getTransactions } from "../services/api";
 
 export default function Transactions() {
@@ -16,36 +17,27 @@ export default function Transactions() {
   const [page, setPage] = useState(1);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
 
   const load = useCallback(async (nextPage = 1, append = false) => {
     try {
       setLoading(true);
+      setError(false);
       const data = await getTransactions({ page: nextPage, limit: 10, ...(type ? { type } : {}), sort });
       setItems((old) => append ? [...old, ...(data.data || [])] : (data.data || []));
       setPage(nextPage);
       setTotal(data.total || 0);
     } catch {
-      if (!append) setItems([]);
+      if (!append) {
+        setItems([]);
+        setError(true);
+      }
     } finally {
       setLoading(false);
     }
   }, [type, sort]);
 
   useFocusEffect(useCallback(() => { load(); }, [load]));
-
-  async function remove(id) {
-    Alert.alert("Supprimer", "Supprimer cette transaction ?", [
-      { text: "Annuler", style: "cancel" },
-      { text: "Supprimer", style: "destructive", onPress: async () => {
-        try {
-          await deleteTransaction(id);
-          load(1);
-        } catch (error) {
-          Alert.alert("Erreur", error.response?.data?.error || "Impossible de supprimer.");
-        }
-      }}
-    ]);
-  }
 
   const hasMore = items.length < total;
 
@@ -77,7 +69,12 @@ export default function Transactions() {
           </View></View>
 
           <Card style={styles.listCard}>
-            {loading && items.length === 0 ? <ActivityIndicator color="#6D1B3B" /> : items.length === 0 ? (
+            {loading && items.length === 0 ? <ActivityIndicator color="#6D1B3B" /> : error ? (
+              <View style={styles.errorContainer}>
+                <Text style={styles.errorText}>Impossible de charger les données</Text>
+                <Button title="Réessayer" onPress={() => load()} />
+              </View>
+            ) : items.length === 0 ? (
               <Text style={styles.empty}>Aucune transaction.</Text>
             ) : items.map((item) => (
               <TransactionItem
@@ -98,6 +95,8 @@ export default function Transactions() {
 }
 
 const styles = StyleSheet.create({
+  errorContainer: { padding: 20, alignItems: "center", justifyContent: "center", gap: 10 },
+  errorText: { color: "red", fontSize: 14, fontWeight: "600" },
   screen: { flex: 1, backgroundColor: "#FAF7F5" },
   page: { flex: 1 },
   content: { padding: 16, gap: 10, paddingBottom: 22 },

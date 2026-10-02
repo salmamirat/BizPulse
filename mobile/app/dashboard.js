@@ -1,12 +1,12 @@
 import { useCallback, useState } from "react";
-import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View, Image } from "react-native";
+import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { useFocusEffect, useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Card from "../components/Card";
 import Button from "../components/Button";
 import BottomNav from "../components/BottomNav";
-import { getDashboard, getTransactions } from "../services/api";
+import { getDashboard, getCategories as getCategoriesApi } from "../services/api";
 import useAuthStore from "../store/authStore";
 
 const money = (value) => `${Number(value || 0).toLocaleString("fr-FR")} DH`;
@@ -17,24 +17,23 @@ export default function Dashboard() {
   const [summary, setSummary] = useState({ revenus: 0, depenses: 0, solde: 0 });
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
 
   const load = useCallback(async () => {
     try {
       setLoading(true);
-      const [summaryData, expenseData] = await Promise.all([
+      setError(false);
+      const [summaryData, categoryData] = await Promise.all([
         getDashboard(),
-        getTransactions({ page: 1, limit: 100, type: "depense", sort: "montant" })
+        getCategoriesApi()
       ]);
       setSummary(summaryData);
-
-      const totals = {};
-      (expenseData.data || []).forEach((item) => {
-        totals[item.categorie] = (totals[item.categorie] || 0) + Number(item.montant);
-      });
-      setCategories(Object.entries(totals).sort((a, b) => b[1] - a[1]).slice(0, 5));
+      
+      // formatte les catégories
+      const formatted = categoryData.map(c => [c.categorie, Number(c.total)]);
+      setCategories(formatted);
     } catch {
-      setSummary({ revenus: 0, depenses: 0, solde: 0 });
-      setCategories([]);
+      setError(true);
     } finally {
       setLoading(false);
     }
@@ -62,7 +61,14 @@ export default function Dashboard() {
             </Pressable>
           </View>
 
-          <Card style={styles.balanceCard}>
+          {error ? (
+            <View style={styles.errorContainer}>
+              <Text style={styles.errorText}>Impossible de charger les données</Text>
+              <Button title="Réessayer" onPress={load} />
+            </View>
+          ) : (
+            <>
+              <Card style={styles.balanceCard}>
             <View style={styles.cardHeader}>
               <Text style={styles.label}>Solde estimé</Text>
               <Ionicons name="wallet-outline" size={18} color="#6D1B3B" />
@@ -95,6 +101,8 @@ export default function Dashboard() {
               </View>
             ))}
           </Card>
+          </>
+          )}
 
           <Button title="＋  Ajouter une transaction" onPress={() => router.push("/transaction-form")} />
         </ScrollView>
@@ -105,6 +113,8 @@ export default function Dashboard() {
 }
 
 const styles = StyleSheet.create({
+  errorContainer: { padding: 20, alignItems: "center", justifyContent: "center", gap: 10 },
+  errorText: { color: "red", fontSize: 14, fontWeight: "600" },
   screen: { flex: 1, backgroundColor: "#FAF7F5" },
   loading: { flex: 1, backgroundColor: "#FAF7F5", alignItems: "center", justifyContent: "center" },
   page: { flex: 1 },
