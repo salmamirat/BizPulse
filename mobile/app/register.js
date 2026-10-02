@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { Alert, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, View, Image } from "react-native";
+import { Alert, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Image } from "expo-image";
 import { Link, useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import Input from "../components/Input";
@@ -44,15 +45,15 @@ export default function Register() {
       <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
         <View style={styles.top}>
           <Pressable onPress={() => router.replace("/login")} hitSlop={12}>
-            <Ionicons name="arrow-back" size={19} color="#1F2A1F" />
+            <Ionicons name="arrow-back" size={19} color="#2D2B2F" />
           </Pressable>
           <View style={styles.secureRow}>
-            <Ionicons name="shield-checkmark-outline" size={13} color="#4A7C59" />
+            <Ionicons name="shield-checkmark-outline" size={13} color="#6D1B3B" />
             <Text style={styles.secure}>Données sécurisées</Text>
           </View>
         </View>
 
-        <Image source={require('../assets/logo.png')} style={styles.logoImage} resizeMode="contain" />
+        <Image source={require('../assets/logo.svg')} style={styles.logoImage} contentFit="contain" />
         <Text style={styles.title}>Créer un compte</Text>
         <Text style={styles.subtitle}>Commencez la gestion claire et sereine de votre activité.</Text>
 
@@ -71,15 +72,15 @@ export default function Register() {
 }
 
 const styles = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: "#F0FDEC" },
-  content: { flexGrow: 1, justifyContent: "center", padding: 20 },
+  screen: { flex: 1, backgroundColor: "#FAF7F5" },
+  content: { flexGrow: 1, paddingTop: 60, paddingHorizontal: 20, paddingBottom: 30 },
   top: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginBottom: 20 },
   secureRow: { flexDirection: "row", alignItems: "center", gap: 5 },
-  secure: { color: "#4A7C59", fontSize: 10, fontWeight: "700" },
-  logoImage: { height: 32, width: 110, marginBottom: 15, alignSelf: "flex-start" },
-  title: { color: "#1F2A1F", fontSize: 22, fontWeight: "800" },
-  subtitle: { color: "#5C6E5C", fontSize: 12, lineHeight: 18, marginTop: 5, marginBottom: 20 },
-  loginText: { textAlign: "center", color: "#5C6E5C", fontSize: 12, marginTop: 15 },
-  link: { color: "#4A7C59", fontWeight: "700" },
-  legal: { textAlign: "center", color: "#7A897A", fontSize: 9, lineHeight: 13, marginTop: 14 }
+  secure: { color: "#6D1B3B", fontSize: 10, fontWeight: "700" },
+  logoImage: { height: 80, width: 280, alignSelf: "center", marginBottom: 24 },
+  title: { color: "#2D2B2F", fontSize: 22, fontWeight: "800" },
+  subtitle: { color: "#77736D", fontSize: 12, lineHeight: 18, marginTop: 5, marginBottom: 20 },
+  loginText: { textAlign: "center", color: "#77736D", fontSize: 12, marginTop: 15 },
+  link: { color: "#6D1B3B", fontWeight: "700" },
+  legal: { textAlign: "center", color: "#77736D", fontSize: 9, lineHeight: 13, marginTop: 14 }
 });

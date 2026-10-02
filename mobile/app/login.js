@@ -1,6 +1,8 @@
 import { useState } from "react";
-import { Alert, KeyboardAvoidingView, Platform, StyleSheet, Text, View, Image } from "react-native";
+import { Alert, KeyboardAvoidingView, Platform, StyleSheet, Text, View, Pressable } from "react-native";
+import { Image } from "expo-image";
 import { Link, useRouter } from "expo-router";
+import { Ionicons } from "@expo/vector-icons";
 import Input from "../components/Input";
 import Button from "../components/Button";
 import useAuthStore from "../store/authStore";
@@ -43,9 +45,8 @@ await saveSession(
   return (
     <KeyboardAvoidingView style={styles.screen} behavior={Platform.OS === "ios" ? "padding" : undefined}>
       <View style={styles.content}>
-        <Image source={require('../assets/logo.png')} style={styles.logoImage} resizeMode="contain" />
+        <Image source={require('../assets/logo.svg')} style={styles.logoImage} contentFit="contain" />
         <Text style={styles.subtitle}>Connexion</Text>
-
         <View style={styles.form}>
           <Input label="Email" value={email} onChangeText={setEmail} placeholder="contact@entreprise.ma" keyboardType="email-address" />
           <Input label="Mot de passe" value={motDePasse} onChangeText={setMotDePasse} placeholder="••••••••" secure />
@@ -61,11 +62,12 @@ await saveSession(
 }
 
 const styles = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: "#F0FDEC" },
+  screen: { flex: 1, backgroundColor: "#FAF7F5" },
   content: { flex: 1, justifyContent: "center", paddingHorizontal: 20 },
-  logoImage: { height: 36, width: 140, marginBottom: 20 },
-  subtitle: { color: "#5C6E5C", fontSize: 16, fontWeight: "600", marginBottom: 22 },
+  backButton: { position: "absolute", top: 60, left: 20, zIndex: 10 },
+  logoImage: { height: 80, width: 280, alignSelf: "center", marginBottom: 24 },
+  subtitle: { color: "#77736D", fontSize: 16, fontWeight: "600", marginBottom: 22 },
   form: { width: "100%" },
-  registerText: { color: "#5C6E5C", textAlign: "center", fontSize: 12, marginTop: 17 },
-  link: { color: "#4A7C59", fontWeight: "700" }
+  registerText: { color: "#77736D", textAlign: "center", fontSize: 12, marginTop: 17 },
+  link: { color: "#6D1B3B", fontWeight: "700" }
 });

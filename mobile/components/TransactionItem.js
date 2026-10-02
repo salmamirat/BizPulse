@@ -8,7 +8,7 @@ export default function TransactionItem({ item, onPress }) {
   return (
     <Pressable onPress={onPress} style={({ pressed }) => [styles.row, pressed && styles.pressed]}>
       <View style={[styles.icon, income ? styles.incomeBg : styles.expenseBg]}>
-        <Ionicons name={income ? "arrow-down" : "arrow-up"} size={15} color={income ? "#2E9E5B" : "#D9534F"} />
+        <Ionicons name={income ? "arrow-down" : "arrow-up"} size={15} color={income ? "#2E9E5B" : "#B3261E"} />
       </View>
       <View style={styles.info}>
         <Text style={styles.title} numberOfLines={1}>{item.categorie}</Text>
@@ -17,21 +17,21 @@ export default function TransactionItem({ item, onPress }) {
       <Text style={[styles.amount, income ? styles.income : styles.expense]}>
         {income ? "+" : "−"} {Number(item.montant).toLocaleString("fr-FR")} DH
       </Text>
-      <Ionicons name="chevron-forward" size={15} color="#9AAA9A" />
+      <Ionicons name="chevron-forward" size={15} color="#77736D" />
     </Pressable>
   );
 }
 
 const styles = StyleSheet.create({
-  row: { minHeight: 64, flexDirection: "row", alignItems: "center", borderBottomWidth: 1, borderBottomColor: "#EEF5EE", gap: 10 },
+  row: { minHeight: 64, flexDirection: "row", alignItems: "center", borderBottomWidth: 1, borderBottomColor: "#E8E2DA", gap: 10 },
   pressed: { opacity: 0.65 },
   icon: { width: 34, height: 34, borderRadius: 10, alignItems: "center", justifyContent: "center" },
-  incomeBg: { backgroundColor: "#E7F6E9" },
-  expenseBg: { backgroundColor: "#FCE8E6" },
+  incomeBg: { backgroundColor: "rgba(46, 158, 91, 0.12)" },
+  expenseBg: { backgroundColor: "rgba(179, 38, 30, 0.12)" },
   info: { flex: 1 },
-  title: { color: "#1F2A1F", fontSize: 13, fontWeight: "700" },
-  date: { color: "#6E7B6E", fontSize: 10, marginTop: 3 },
+  title: { color: "#2D2B2F", fontSize: 13, fontWeight: "700" },
+  date: { color: "#77736D", fontSize: 10, marginTop: 3 },
   amount: { fontSize: 12, fontWeight: "700" },
   income: { color: "#2E9E5B" },
-  expense: { color: "#D9534F" }
+  expense: { color: "#B3261E" }
 });

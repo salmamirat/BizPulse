@@ -43,7 +43,7 @@ export default function Dashboard() {
   useFocusEffect(useCallback(() => { load(); }, [load]));
 
   if (loading) {
-    return <SafeAreaView style={styles.loading}><ActivityIndicator color="#4A7C59" /></SafeAreaView>;
+    return <SafeAreaView style={styles.loading}><ActivityIndicator color="#6D1B3B" /></SafeAreaView>;
   }
 
   const maxCategory = categories[0]?.[1] || 1;
@@ -54,7 +54,6 @@ export default function Dashboard() {
         <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
           <View style={styles.header}>
             <View>
-              <Image source={require('../assets/logo.png')} style={styles.logoImage} resizeMode="contain" />
               <Text style={styles.pageTitle}>Tableau de bord</Text>
               <Text style={styles.hello}>Bonjour, {profile?.nom || "votre entreprise"}</Text>
             </View>
@@ -66,7 +65,7 @@ export default function Dashboard() {
           <Card style={styles.balanceCard}>
             <View style={styles.cardHeader}>
               <Text style={styles.label}>Solde estimé</Text>
-              <Ionicons name="wallet-outline" size={18} color="#4A7C59" />
+              <Ionicons name="wallet-outline" size={18} color="#6D1B3B" />
             </View>
             <Text style={styles.balance}>{money(summary.solde)}</Text>
           </Card>
@@ -106,32 +105,31 @@ export default function Dashboard() {
 }
 
 const styles = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: "#F0FDEC" },
-  loading: { flex: 1, backgroundColor: "#F0FDEC", alignItems: "center", justifyContent: "center" },
+  screen: { flex: 1, backgroundColor: "#FAF7F5" },
+  loading: { flex: 1, backgroundColor: "#FAF7F5", alignItems: "center", justifyContent: "center" },
   page: { flex: 1 },
   content: { padding: 16, gap: 12, paddingBottom: 20 },
   header: { flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
-  pageTitle: { color: "#1F2A1F", fontSize: 17, fontWeight: "800" },
-  logoImage: { height: 28, width: 100, marginBottom: 8 },
-  hello: { color: "#5C6E5C", fontSize: 11, marginTop: 3 },
-  avatar: { width: 32, height: 32, borderRadius: 16, backgroundColor: "#4A7C59", alignItems: "center", justifyContent: "center" },
-  balanceCard: { paddingVertical: 15 },
+  pageTitle: { color: "#2D2B2F", fontSize: 26, fontWeight: "800" },
+  hello: { color: "#77736D", fontSize: 15, marginTop: 3 },
+  avatar: { width: 36, height: 36, borderRadius: 18, backgroundColor: "#6D1B3B", alignItems: "center", justifyContent: "center" },
+  balanceCard: { paddingVertical: 18 },
   cardHeader: { flexDirection: "row", justifyContent: "space-between", alignItems: "center" },
-  label: { color: "#5C6E5C", fontSize: 10 },
-  balance: { color: "#1F2A1F", fontSize: 29, fontWeight: "800", marginTop: 4 },
+  label: { color: "#77736D", fontSize: 14 },
+  balance: { color: "#2D2B2F", fontSize: 34, fontWeight: "800", marginTop: 4 },
   metrics: { flexDirection: "row", gap: 10 },
-  metric: { flex: 1, paddingVertical: 13 },
+  metric: { flex: 1, paddingVertical: 15 },
   metricTitle: { flexDirection: "row", justifyContent: "space-between" },
-  income: { color: "#2E9E5B", fontSize: 16, fontWeight: "800", marginTop: 6 },
-  expense: { color: "#D9534F", fontSize: 16, fontWeight: "800", marginTop: 6 },
-  up: { color: "#2E9E5B", fontSize: 14 },
-  down: { color: "#D9534F", fontSize: 14 },
-  sectionTitle: { color: "#1F2A1F", fontSize: 13, fontWeight: "800", marginBottom: 12 },
-  category: { marginBottom: 11 },
-  categoryLine: { flexDirection: "row", justifyContent: "space-between", marginBottom: 5 },
-  categoryName: { color: "#1F2A1F", fontSize: 11, fontWeight: "600" },
-  categoryValue: { color: "#5C6E5C", fontSize: 10 },
-  bar: { height: 6, borderRadius: 4, backgroundColor: "#E8F2E8", overflow: "hidden" },
-  fill: { height: 6, borderRadius: 4, backgroundColor: "#4A7C59" },
-  empty: { color: "#5C6E5C", fontSize: 11 }
+  income: { color: "#2E9E5B", fontSize: 20, fontWeight: "800", marginTop: 6 },
+  expense: { color: "#B3261E", fontSize: 20, fontWeight: "800", marginTop: 6 },
+  up: { color: "#2E9E5B", fontSize: 16 },
+  down: { color: "#B3261E", fontSize: 16 },
+  sectionTitle: { color: "#2D2B2F", fontSize: 18, fontWeight: "800", marginBottom: 14 },
+  category: { marginBottom: 14 },
+  categoryLine: { flexDirection: "row", justifyContent: "space-between", marginBottom: 6 },
+  categoryName: { color: "#2D2B2F", fontSize: 14, fontWeight: "600" },
+  categoryValue: { color: "#77736D", fontSize: 14 },
+  bar: { height: 8, borderRadius: 4, backgroundColor: "#F8E9EC", overflow: "hidden" },
+  fill: { height: 8, borderRadius: 4, backgroundColor: "#6D1B3B" },
+  empty: { color: "#77736D", fontSize: 14 }
 });

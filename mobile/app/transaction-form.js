@@ -55,7 +55,7 @@ export default function TransactionForm() {
       <KeyboardAvoidingView style={styles.page} behavior={Platform.OS === "ios" ? "padding" : undefined}>
         <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
           <View style={styles.header}>
-            <Pressable onPress={() => router.back()} hitSlop={10}><Ionicons name="arrow-back" size={20} color="#1F2A1F" /></Pressable>
+            <Pressable onPress={() => router.back()} hitSlop={10}><Ionicons name="arrow-back" size={20} color="#2D2B2F" /></Pressable>
             <Text style={styles.title}>{editing ? "Modifier la transaction" : "Ajouter une transaction"}</Text>
             <View style={{ width: 20 }} />
           </View>
@@ -93,24 +93,24 @@ export default function TransactionForm() {
 }
 
 const styles = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: "#F0FDEC" },
+  screen: { flex: 1, backgroundColor: "#FAF7F5" },
   page: { flex: 1 },
   content: { flexGrow: 1, padding: 16, justifyContent: "center" },
   header: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginBottom: 12 },
-  title: { color: "#1F2A1F", fontSize: 16, fontWeight: "800" },
+  title: { color: "#2D2B2F", fontSize: 16, fontWeight: "800" },
   types: { flexDirection: "row", gap: 8, marginBottom: 16 },
-  type: { flex: 1, height: 44, borderRadius: 10, backgroundColor: "#EAF7E6", alignItems: "center", justifyContent: "center" },
+  type: { flex: 1, height: 44, borderRadius: 10, backgroundColor: "#F8E9EC", alignItems: "center", justifyContent: "center" },
   revenueActive: { backgroundColor: "#FFFFFF", borderWidth: 1, borderColor: "#2E9E5B" },
-  expenseActive: { backgroundColor: "#D9534F" },
-  typeText: { color: "#6E7B6E", fontSize: 12, fontWeight: "700" },
+  expenseActive: { backgroundColor: "#B3261E" },
+  typeText: { color: "#77736D", fontSize: 12, fontWeight: "700" },
   revenueText: { color: "#2E9E5B" },
   expenseText: { color: "#FFFFFF" },
-  label: { color: "#1F2A1F", fontSize: 12, fontWeight: "600", marginBottom: 7 },
+  label: { color: "#2D2B2F", fontSize: 12, fontWeight: "600", marginBottom: 7 },
   categories: { flexDirection: "row", flexWrap: "wrap", gap: 7, marginBottom: 14 },
-  category: { paddingHorizontal: 10, height: 32, borderRadius: 9, backgroundColor: "#EAF7E6", justifyContent: "center" },
-  categoryActive: { backgroundColor: "#FFFFFF", borderWidth: 1, borderColor: "#4A7C59" },
-  categoryText: { color: "#1F2A1F", fontSize: 10 },
-  categoryActiveText: { color: "#4A7C59", fontWeight: "700" },
+  category: { paddingHorizontal: 10, height: 32, borderRadius: 9, backgroundColor: "#F8E9EC", justifyContent: "center" },
+  categoryActive: { backgroundColor: "#FFFFFF", borderWidth: 1, borderColor: "#6D1B3B" },
+  categoryText: { color: "#2D2B2F", fontSize: 10 },
+  categoryActiveText: { color: "#6D1B3B", fontWeight: "700" },
   cancel: { alignItems: "center", paddingTop: 11 },
-  cancelText: { color: "#1F2A1F", fontSize: 11, fontWeight: "600" }
+  cancelText: { color: "#2D2B2F", fontSize: 11, fontWeight: "600" }
 });

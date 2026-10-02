@@ -55,11 +55,9 @@ export default function Transactions() {
         <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
           <View style={styles.header}>
             <View>
-              <Image source={require('../assets/logo.png')} style={styles.logoImage} resizeMode="contain" />
               <Text style={styles.title}>Transactions</Text>
               <Text style={styles.subtitle}>Historique financier</Text>
             </View>
-            <Pressable onPress={() => router.push("/transaction-form")} style={styles.add}><Ionicons name="add" size={22} color="#FFFFFF" /></Pressable>
           </View>
 
           <View style={styles.tabs}>
@@ -79,7 +77,7 @@ export default function Transactions() {
           </View></View>
 
           <Card style={styles.listCard}>
-            {loading && items.length === 0 ? <ActivityIndicator color="#4A7C59" /> : items.length === 0 ? (
+            {loading && items.length === 0 ? <ActivityIndicator color="#6D1B3B" /> : items.length === 0 ? (
               <Text style={styles.empty}>Aucune transaction.</Text>
             ) : items.map((item) => (
               <TransactionItem
@@ -100,29 +98,27 @@ export default function Transactions() {
 }
 
 const styles = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: "#F0FDEC" },
+  screen: { flex: 1, backgroundColor: "#FAF7F5" },
   page: { flex: 1 },
   content: { padding: 16, gap: 10, paddingBottom: 22 },
   header: { flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
-  title: { color: "#1F2A1F", fontSize: 20, fontWeight: "800" },
-  logoImage: { height: 28, width: 100, marginBottom: 8 },
-  subtitle: { color: "#5C6E5C", fontSize: 10, marginTop: 2 },
-  add: { width: 34, height: 34, borderRadius: 17, backgroundColor: "#4A7C59", alignItems: "center", justifyContent: "center" },
-  tabs: { flexDirection: "row", backgroundColor: "#EAF7E6", borderRadius: 12, padding: 4 },
-  tab: { flex: 1, height: 34, alignItems: "center", justifyContent: "center", borderRadius: 9 },
-  activeTab: { backgroundColor: "#FFFFFF", borderWidth: 1, borderColor: "#D4E5D4" },
-  tabText: { color: "#6E7B6E", fontSize: 11 },
-  activeTabText: { color: "#1F2A1F", fontWeight: "700" },
+  title: { color: "#2D2B2F", fontSize: 26, fontWeight: "800" },
+  subtitle: { color: "#77736D", fontSize: 14, marginTop: 2 },
+  tabs: { flexDirection: "row", backgroundColor: "#F8E9EC", borderRadius: 12, padding: 4 },
+  tab: { flex: 1, height: 40, alignItems: "center", justifyContent: "center", borderRadius: 9 },
+  activeTab: { backgroundColor: "#FFFFFF", borderWidth: 1, borderColor: "#E8E2DA" },
+  tabText: { color: "#77736D", fontSize: 14 },
+  activeTabText: { color: "#2D2B2F", fontWeight: "700" },
   sortHeader: { flexDirection: "row", alignItems: "center", gap: 7 },
-  sortLabel: { color: "#6E7B6E", fontSize: 10 },
+  sortLabel: { color: "#77736D", fontSize: 13 },
   sorts: { flex: 1, flexDirection: "row", gap: 6 },
-  sort: { paddingHorizontal: 9, height: 28, justifyContent: "center", borderRadius: 9, backgroundColor: "#EAF7E6" },
-  sortActive: { backgroundColor: "#FFFFFF", borderWidth: 1, borderColor: "#D4E5D4" },
-  sortText: { color: "#6E7B6E", fontSize: 9 },
-  sortActiveText: { color: "#1F2A1F", fontWeight: "700" },
+  sort: { paddingHorizontal: 9, height: 32, justifyContent: "center", borderRadius: 9, backgroundColor: "#F8E9EC" },
+  sortActive: { backgroundColor: "#FFFFFF", borderWidth: 1, borderColor: "#E8E2DA" },
+  sortText: { color: "#77736D", fontSize: 12 },
+  sortActiveText: { color: "#2D2B2F", fontWeight: "700" },
   listCard: { paddingVertical: 4 },
-  empty: { color: "#6E7B6E", textAlign: "center", paddingVertical: 24, fontSize: 11 },
-  more: { height: 40, backgroundColor: "#FFFFFF", borderWidth: 1, borderColor: "#D4E5D4", borderRadius: 12, alignItems: "center", justifyContent: "center" },
-  moreText: { color: "#1F2A1F", fontSize: 10, fontWeight: "700" },
-  floating: { position: "absolute", right: 18, bottom: 76, width: 42, height: 42, borderRadius: 21, backgroundColor: "#4A7C59", alignItems: "center", justifyContent: "center" }
+  empty: { color: "#77736D", textAlign: "center", paddingVertical: 24, fontSize: 14 },
+  more: { height: 44, backgroundColor: "#FFFFFF", borderWidth: 1, borderColor: "#E8E2DA", borderRadius: 12, alignItems: "center", justifyContent: "center" },
+  moreText: { color: "#2D2B2F", fontSize: 14, fontWeight: "700" },
+  floating: { position: "absolute", right: 18, bottom: 76, width: 42, height: 42, borderRadius: 21, backgroundColor: "#6D1B3B", alignItems: "center", justifyContent: "center" }
 });

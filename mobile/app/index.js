@@ -1,15 +1,60 @@
 import { Redirect } from "expo-router";
 import { useEffect, useState } from "react";
 import * as SecureStore from "expo-secure-store";
-import { ActivityIndicator, View } from "react-native";
+import { ActivityIndicator, StyleSheet, View } from "react-native";
+import { useVideoPlayer, VideoView } from "expo-video";
 
 export default function Index() {
   const [logged, setLogged] = useState(null);
+  const [videoFinished, setVideoFinished] = useState(false);
 
   useEffect(() => {
     SecureStore.getItemAsync("accessToken").then((token) => setLogged(Boolean(token)));
   }, []);
 
-  if (logged === null) return <View style={{ flex: 1, justifyContent: "center", backgroundColor: "#F0FDEC" }}><ActivityIndicator color="#4A7C59" /></View>;
+  const player = useVideoPlayer(require('../assets/Create_logo_splash_screen_intro_20261001152559.mp4'), player => {
+    player.play();
+  });
+
+  useEffect(() => {
+    const subscription = player.addListener('playToEnd', () => {
+      setVideoFinished(true);
+    });
+    return () => {
+      subscription.remove();
+    };
+  }, [player]);
+
+  if (!videoFinished) {
+    return (
+      <View style={styles.container}>
+        <VideoView
+          player={player}
+          style={styles.video}
+          contentFit="contain"
+        />
+      </View>
+    );
+  }
+
+  if (logged === null) return <View style={styles.loadingContainer}><ActivityIndicator color="#6D1B3B" /></View>;
   return logged ? <Redirect href="/dashboard" /> : <Redirect href="/login" />;
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#000000',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  video: {
+    width: '100%',
+    height: '100%',
+  },
+  loadingContainer: {
+    flex: 1, 
+    justifyContent: "center", 
+    backgroundColor: "#FAF7F5"
+  }
+});

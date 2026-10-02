@@ -8,7 +8,7 @@ export default function Input({ label, value, onChangeText, placeholder, secure 
         value={value}
         onChangeText={onChangeText}
         placeholder={placeholder}
-        placeholderTextColor="#7A897A"
+        placeholderTextColor="#77736D"
         secureTextEntry={secure}
         keyboardType={keyboardType}
         autoCapitalize="none"
@@ -20,15 +20,15 @@ export default function Input({ label, value, onChangeText, placeholder, secure 
 
 const styles = StyleSheet.create({
   wrapper: { marginBottom: 12 },
-  label: { color: "#1F2A1F", fontSize: 12, fontWeight: "600", marginBottom: 6 },
+  label: { color: "#2D2B2F", fontSize: 12, fontWeight: "600", marginBottom: 6 },
   input: {
     height: 52,
     backgroundColor: "#FFFFFF",
     borderWidth: 1,
-    borderColor: "#D4E5D4",
+    borderColor: "#E8E2DA",
     borderRadius: 12,
     paddingHorizontal: 14,
-    color: "#1F2A1F",
+    color: "#2D2B2F",
     fontSize: 14
   }
 });

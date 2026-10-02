@@ -20,15 +20,15 @@ const styles = StyleSheet.create({
   button: {
     minHeight: 52,
     borderRadius: 12,
-    backgroundColor: "#4A7C59",
+    backgroundColor: "#6D1B3B",
     alignItems: "center",
     justifyContent: "center",
     paddingHorizontal: 16
   },
-  outline: { backgroundColor: "#FFFFFF", borderWidth: 1, borderColor: "#4A7C59" },
-  danger: { backgroundColor: "#FFFFFF", borderWidth: 1, borderColor: "#D9534F" },
-  pressed: { backgroundColor: "#3B6447" },
+  outline: { backgroundColor: "#FFFFFF", borderWidth: 1, borderColor: "#6D1B3B" },
+  danger: { backgroundColor: "#FFFFFF", borderWidth: 1, borderColor: "#B3261E" },
+  pressed: { backgroundColor: "#4A1028" },
   text: { color: "#FFFFFF", fontSize: 14, fontWeight: "700" },
-  outlineText: { color: "#4A7C59" },
-  dangerText: { color: "#D9534F" }
+  outlineText: { color: "#6D1B3B" },
+  dangerText: { color: "#B3261E" }
 });

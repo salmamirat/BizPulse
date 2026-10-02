@@ -19,7 +19,7 @@ export default function BottomNav() {
         const active = pathname.includes(route);
         return (
           <Pressable key={route} onPress={() => router.replace(`/${route}`)} style={styles.item}>
-            <Ionicons name={active ? activeIcon : icon} size={18} color={active ? "#4A7C59" : "#6E7B6E"} />
+            <Ionicons name={active ? activeIcon : icon} size={18} color={active ? "#6D1B3B" : "#77736D"} />
             <Text style={[styles.label, active && styles.active]}>{label}</Text>
           </Pressable>
         );
@@ -34,10 +34,10 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     backgroundColor: "#FFFFFF",
     borderTopWidth: 1,
-    borderTopColor: "#D4E5D4",
+    borderTopColor: "#E8E2DA",
     paddingBottom: 5
   },
   item: { flex: 1, alignItems: "center", justifyContent: "center" },
-  label: { color: "#6E7B6E", fontSize: 9, marginTop: 4 },
-  active: { color: "#4A7C59", fontWeight: "700" }
+  label: { color: "#77736D", fontSize: 9, marginTop: 4 },
+  active: { color: "#6D1B3B", fontWeight: "700" }
 });

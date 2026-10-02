@@ -80,7 +80,7 @@ export default function Chat() {
           </View>
           <View style={styles.actions}>
             <Pressable onPress={newConversation} style={styles.newButton}><Text style={styles.newText}>＋ Nouveau</Text></Pressable>
-            <Pressable onPress={load} hitSlop={8}><Ionicons name="refresh" size={17} color="#4A7C59" /></Pressable>
+            <Pressable onPress={load} hitSlop={8}><Ionicons name="refresh" size={17} color="#6D1B3B" /></Pressable>
           </View>
         </View>
 
@@ -97,7 +97,7 @@ export default function Chat() {
 
           {messages.length === 0 && (
             <View style={styles.welcome}>
-              <View style={styles.botIcon}><Ionicons name="sparkles" size={15} color="#4A7C59" /></View>
+              <View style={styles.botIcon}><Ionicons name="sparkles" size={15} color="#6D1B3B" /></View>
               <Text style={styles.botTitle}>Bonjour, je suis votre assistant financier BizPulse.</Text>
               <Text style={styles.botText}>Posez-moi une question sur vos revenus, dépenses ou simulations.</Text>
             </View>
@@ -121,7 +121,7 @@ export default function Chat() {
         </View>
 
         <View style={styles.inputRow}>
-          <TextInput value={question} onChangeText={setQuestion} placeholder="Posez votre question financière…" placeholderTextColor="#7A897A" style={styles.input} multiline />
+          <TextInput value={question} onChangeText={setQuestion} placeholder="Posez votre question financière…" placeholderTextColor="#77736D" style={styles.input} multiline />
           <Pressable onPress={() => send()} style={styles.send}>{sending ? <ActivityIndicator size="small" color="#FFFFFF" /> : <Ionicons name="arrow-up" size={18} color="#FFFFFF" />}</Pressable>
         </View>
         <BottomNav />
@@ -131,36 +131,36 @@ export default function Chat() {
 }
 
 const styles = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: "#F0FDEC" },
+  screen: { flex: 1, backgroundColor: "#FAF7F5" },
   page: { flex: 1 },
-  header: { paddingHorizontal: 16, paddingVertical: 12, flexDirection: "row", justifyContent: "space-between", alignItems: "center", backgroundColor: "#FFFFFF", borderBottomWidth: 1, borderBottomColor: "#D4E5D4" },
-  title: { color: "#1F2A1F", fontSize: 16, fontWeight: "800" },
-  status: { color: "#4A7C59", fontSize: 9, marginTop: 3 },
+  header: { paddingHorizontal: 16, paddingVertical: 12, flexDirection: "row", justifyContent: "space-between", alignItems: "center", backgroundColor: "#FFFFFF", borderBottomWidth: 1, borderBottomColor: "#E8E2DA" },
+  title: { color: "#2D2B2F", fontSize: 24, fontWeight: "800" },
+  status: { color: "#6D1B3B", fontSize: 13, marginTop: 3 },
   actions: { flexDirection: "row", alignItems: "center", gap: 10 },
-  newButton: { paddingHorizontal: 9, height: 28, borderRadius: 8, backgroundColor: "#EAF7E6", justifyContent: "center" },
-  newText: { color: "#4A7C59", fontSize: 9, fontWeight: "700" },
+  newButton: { paddingHorizontal: 10, height: 32, borderRadius: 8, backgroundColor: "#F8E9EC", justifyContent: "center" },
+  newText: { color: "#6D1B3B", fontSize: 13, fontWeight: "700" },
   scroll: { flex: 1 },
-  messages: { padding: 14, gap: 9 },
+  messages: { padding: 14, gap: 12 },
   historyRow: { gap: 7 },
-  history: { paddingHorizontal: 9, paddingVertical: 6, borderRadius: 8, backgroundColor: "#EAF7E6" },
-  historyActive: { backgroundColor: "#FFFFFF", borderWidth: 1, borderColor: "#4A7C59" },
-  historyText: { color: "#5C6E5C", fontSize: 9 },
-  welcome: { backgroundColor: "#FFFFFF", borderWidth: 1, borderColor: "#D4E5D4", borderRadius: 14, padding: 14 },
-  botIcon: { width: 28, height: 28, borderRadius: 9, backgroundColor: "#EAF7E6", alignItems: "center", justifyContent: "center", marginBottom: 8 },
-  botTitle: { color: "#1F2A1F", fontSize: 12, lineHeight: 18, fontWeight: "700" },
-  botText: { color: "#5C6E5C", fontSize: 11, lineHeight: 17, marginTop: 5 },
-  message: { maxWidth: "86%", padding: 11, borderRadius: 13 },
-  userMessage: { alignSelf: "flex-end", backgroundColor: "#4A7C59" },
-  assistantMessage: { alignSelf: "flex-start", backgroundColor: "#FFFFFF", borderWidth: 1, borderColor: "#D4E5D4" },
-  assistantLabel: { color: "#4A7C59", fontSize: 9, fontWeight: "700", marginBottom: 4 },
-  userText: { color: "#FFFFFF", fontSize: 11, lineHeight: 17 },
-  assistantText: { color: "#1F2A1F", fontSize: 11, lineHeight: 17 },
-  suggestions: { paddingHorizontal: 14, paddingTop: 4, paddingBottom: 7 },
-  suggestTitle: { color: "#5C6E5C", fontSize: 10, marginBottom: 6, fontWeight: "700" },
-  suggestList: { gap: 5 },
-  suggestion: { backgroundColor: "#FFFFFF", borderWidth: 1, borderColor: "#D4E5D4", borderRadius: 8, paddingHorizontal: 9, paddingVertical: 7 },
-  suggestionText: { color: "#1F2A1F", fontSize: 9 },
-  inputRow: { flexDirection: "row", padding: 10, gap: 8, backgroundColor: "#F0FDEC", borderTopWidth: 1, borderTopColor: "#D4E5D4" },
-  input: { flex: 1, minHeight: 44, maxHeight: 90, backgroundColor: "#FFFFFF", borderWidth: 1, borderColor: "#D4E5D4", borderRadius: 12, paddingHorizontal: 12, paddingVertical: 11, color: "#1F2A1F", fontSize: 11 },
-  send: { width: 44, height: 44, borderRadius: 12, backgroundColor: "#4A7C59", alignItems: "center", justifyContent: "center" }
+  history: { paddingHorizontal: 10, paddingVertical: 8, borderRadius: 8, backgroundColor: "#F8E9EC" },
+  historyActive: { backgroundColor: "#FFFFFF", borderWidth: 1, borderColor: "#6D1B3B" },
+  historyText: { color: "#77736D", fontSize: 12 },
+  welcome: { backgroundColor: "#FFFFFF", borderWidth: 1, borderColor: "#E8E2DA", borderRadius: 14, padding: 14 },
+  botIcon: { width: 32, height: 32, borderRadius: 9, backgroundColor: "#F8E9EC", alignItems: "center", justifyContent: "center", marginBottom: 8 },
+  botTitle: { color: "#2D2B2F", fontSize: 16, lineHeight: 24, fontWeight: "700" },
+  botText: { color: "#77736D", fontSize: 14, lineHeight: 20, marginTop: 5 },
+  message: { maxWidth: "86%", padding: 14, borderRadius: 13 },
+  userMessage: { alignSelf: "flex-end", backgroundColor: "#6D1B3B" },
+  assistantMessage: { alignSelf: "flex-start", backgroundColor: "#FFFFFF", borderWidth: 1, borderColor: "#E8E2DA" },
+  assistantLabel: { color: "#6D1B3B", fontSize: 12, fontWeight: "700", marginBottom: 4 },
+  userText: { color: "#FFFFFF", fontSize: 14, lineHeight: 22 },
+  assistantText: { color: "#2D2B2F", fontSize: 14, lineHeight: 22 },
+  suggestions: { paddingHorizontal: 14, paddingTop: 4, paddingBottom: 10 },
+  suggestTitle: { color: "#77736D", fontSize: 14, marginBottom: 8, fontWeight: "700" },
+  suggestList: { gap: 6 },
+  suggestion: { backgroundColor: "#FFFFFF", borderWidth: 1, borderColor: "#E8E2DA", borderRadius: 8, paddingHorizontal: 12, paddingVertical: 10 },
+  suggestionText: { color: "#2D2B2F", fontSize: 13 },
+  inputRow: { flexDirection: "row", padding: 10, gap: 8, backgroundColor: "#FAF7F5", borderTopWidth: 1, borderTopColor: "#E8E2DA" },
+  input: { flex: 1, minHeight: 48, maxHeight: 100, backgroundColor: "#FFFFFF", borderWidth: 1, borderColor: "#E8E2DA", borderRadius: 12, paddingHorizontal: 14, paddingVertical: 12, color: "#2D2B2F", fontSize: 14 },
+  send: { width: 48, height: 48, borderRadius: 12, backgroundColor: "#6D1B3B", alignItems: "center", justifyContent: "center" }
 });
