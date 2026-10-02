@@ -20,6 +20,7 @@ const useAuthStore = create((set) => ({
     // Met à jour le profil si un token existe (ignore si échec)
     if (accessToken) {
       try {
+        // Le require évite l'erreur de dépendance circulaire (api importe authStore)
         const { getMe } = require("../services/api");
         const meData = await getMe();
         await SecureStore.setItemAsync(PROFILE_KEY, JSON.stringify(meData));

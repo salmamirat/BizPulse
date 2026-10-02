@@ -12,9 +12,6 @@
     ],
     "android": {
       "package": "com.bizpulse.mobile"
-    },
-    "experiments": {
-      "typedRoutes": true
     }
   }
 }

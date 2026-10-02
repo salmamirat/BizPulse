@@ -11,7 +11,7 @@ const json = (properties, required) => {
   };
 };
 
-const swaggerDocument = {
+const openApiDocument = {
   openapi: "3.0.0",
   info: {
     title: "BizPulse API",
@@ -75,6 +75,14 @@ const swaggerDocument = {
         tags: ["Auth"],
         summary: "Se déconnecter",
         responses: { 200: { description: "Déconnexion réussie" } }
+      }
+    },
+    "/api/auth/me": {
+      get: {
+        tags: ["Auth"],
+        summary: "Obtenir le profil",
+        security: bearer,
+        responses: { 200: { description: "{ id, nom, email, secteur }" } }
       }
     },
     "/api/transactions": {
@@ -183,4 +191,4 @@ const swaggerDocument = {
   }
 };
 
-export default swaggerDocument;
+export default openApiDocument;

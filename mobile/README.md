@@ -1,6 +1,6 @@
 # BizPulse Mobile
 
-Frontend React Native / Expo de BizPulse, aligné sur le design Stitch et connecté au backend existant.
+Frontend React Native / Expo de BizPulse, connecté au backend existant.
 
 ## Structure
 
@@ -22,5 +22,3 @@ Pour Android Emulator : `a` dans le terminal Expo.
 ## Backend Android Emulator
 
 L'API utilise `http://10.0.2.2:5000/api`, donc le backend doit tourner sur le port 5000 de la machine.
-
-Le backend n'est pas modifié par ce projet mobile.

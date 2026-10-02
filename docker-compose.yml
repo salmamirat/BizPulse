@@ -1,3 +1,4 @@
+# Lancer avec : docker compose --env-file backend/.env up --build
 services:
   db:
     image: postgres:16-alpine

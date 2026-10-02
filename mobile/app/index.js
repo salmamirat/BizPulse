@@ -12,7 +12,7 @@ export default function Index() {
     SecureStore.getItemAsync("accessToken").then((token) => setLogged(Boolean(token)));
   }, []);
 
-  const player = useVideoPlayer(require('../assets/splash-video.mp4'), player => {
+  const player = useVideoPlayer(require('../assets/splash.mp4'), player => {
     player.play();
   });
 

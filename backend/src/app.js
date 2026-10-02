@@ -10,12 +10,13 @@ import agentRoutes from "./routes/agent.routes.js";
 import errorMiddleware from "./middlewares/error.middleware.js";
 
 const app = express();
+app.set("trust proxy", 1);
 
 app.use(express.json());
 
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 100
+  max: 300
 });
 
 app.use(limiter);
