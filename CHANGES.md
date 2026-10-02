@@ -21,7 +21,7 @@
 - `docs/BizPulse.postman_collection.json` : Création et déplacement de la collection Postman à la racine avec toutes les variables et requêtes configurées. Cela permet de tester toute l'API manuellement.
 
 ## Changements non demandés
-- Le passage de `expo-av` vers `expo-video` a été maintenu car la bibliothèque `expo-av` sera formellement retirée dans le SDK 54 d'Expo utilisé par le projet, ce qui bloquerait son fonctionnement futur. La bibliothèque `date-fns` a été supprimée car elle n'était utilisée dans aucun composant du code.
+- Le passage de `expo-av` vers `expo-video` a été maintenu car expo-av est déprécié (il sera retiré dans le SDK 55) et expo-video est la bibliothèque recommandée par Expo pour lire une vidéo. La bibliothèque `date-fns` a été supprimée car elle n'était utilisée dans aucun composant du code.
 
 ## Comment tester
 1. Lancez le backend via Docker (`docker compose --env-file backend/.env up --build`).
@@ -29,7 +29,7 @@
 3. Créez un compte via l'écran d'inscription, puis connectez-vous.
 4. Ajoutez des transactions et vérifiez que le dashboard, le solde et les catégories se mettent à jour.
 5. Ouvrez le chat avec l'IA et posez 3 questions : "Résume ma situation financière", "Quelle catégorie coûte le plus ?", "Simule une embauche à 4 000 DH".
-6. Vérifiez que les réponses sont bien affichées ligne par ligne sans être dupliquées dans la base de données.
+6. Vérifiez que les messages ne sont PAS dupliqués dans la table Message de la base, et que les sauts de ligne de la réponse de l'IA sont bien conservés à l'écran.
 7. Déconnectez-vous puis reconnectez-vous pour vérifier que le nom de l'entreprise s'affiche correctement sur le profil et le dashboard.
 
 ## Ce que je n'ai pas pu vérifier
