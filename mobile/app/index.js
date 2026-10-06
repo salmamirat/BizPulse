@@ -12,7 +12,7 @@ export default function Index() {
     SecureStore.getItemAsync("accessToken").then((token) => setLogged(Boolean(token)));
   }, []);
 
-  const player = useVideoPlayer(require('../assets/Create_logo_splash_screen_intro_20261001152559.mp4'), player => {
+  const player = useVideoPlayer(require('../assets/splash-video.mp4'), player => {
     player.play();
   });
 
