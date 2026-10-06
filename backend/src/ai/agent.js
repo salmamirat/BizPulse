@@ -21,7 +21,8 @@ content: `${systemPrompt}\nDate d'aujourd'hui : ${today}. Utilise toujours le pa
   const firstResponse = await groq.chat.completions.create({
     model: process.env.AI_MODEL,
     messages,
-    tools: tools.toolsSchema
+    tools: tools.toolsSchema,
+    tool_choice: "auto"
   });
 
   const responseMessage = firstResponse.choices[0].message;
@@ -44,14 +45,19 @@ content: `${systemPrompt}\nDate d'aujourd'hui : ${today}. Utilise toujours le pa
     model: process.env.AI_MODEL,
     messages: [
       ...messages,
-      { ...responseMessage, tool_calls: [toolCall] },
+      {
+        role: "assistant",
+        content: responseMessage.content || null,
+        tool_calls: [toolCall]
+      },
       {
         role: "tool",
         tool_call_id: toolCall.id,
         content: JSON.stringify(functionResult)
       }
     ],
-    tools: tools.toolsSchema
+    tools: tools.toolsSchema,
+    tool_choice: "auto"
   });
 
   return {

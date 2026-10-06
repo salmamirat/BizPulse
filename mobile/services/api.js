@@ -2,7 +2,9 @@ import axios from "axios";
 import * as SecureStore from "expo-secure-store";
 import useAuthStore from "../store/authStore";
 
-const API_URL = "http://10.0.2.2:5000/api";
+import { Platform } from "react-native";
+
+const API_URL = Platform.OS === "ios" ? "http://localhost:5000/api" : "http://10.0.2.2:5000/api";
 
 const api = axios.create({
   baseURL: API_URL,
