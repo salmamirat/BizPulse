@@ -83,7 +83,7 @@ export default function Profile() {
     }
   }
 
-  const displayName = profile?.nom || "Mon entreprise";
+  const displayName = profile?.nom || "Mon Business";
   const email = profile?.email || "";
   const sector = profile?.secteur || "";
   const about = profile?.about || "";
@@ -96,9 +96,6 @@ export default function Profile() {
           
           <View style={styles.headerRow}>
             <View style={styles.headerLeft}>
-              <Pressable onPress={() => router.canGoBack() ? router.back() : router.replace("/")} hitSlop={15}>
-                <Ionicons name="arrow-back" size={24} color="#800020" />
-              </Pressable>
               <Text style={styles.title}>Profil</Text>
             </View>
             {!isEditing ? (
@@ -111,7 +108,7 @@ export default function Profile() {
           <Card style={styles.profileCard}>
             <View style={styles.topSection}>
               <View style={styles.mainIconContainer}>
-                <Ionicons name="business" size={32} color="#FFFFFF" />
+                <Ionicons name="storefront" size={32} color="#FFFFFF" />
               </View>
               <View style={styles.topInfo}>
                 {isEditing ? (
@@ -136,7 +133,7 @@ export default function Profile() {
             <Divider />
             <InfoRow icon="document-text-outline" label="À propos" value={isEditing ? editAbout : about} isEditing={isEditing} onChangeText={setEditAbout} multiline />
             <Divider />
-            <InfoRow icon="person-outline" label="Propriétaire" value={isEditing ? editOwner : owner} isEditing={isEditing} onChangeText={setEditOwner} />
+            <InfoRow icon="person-outline" label="Gérant" value={isEditing ? editOwner : owner} isEditing={isEditing} onChangeText={setEditOwner} />
           </Card>
           
           <View style={styles.spacer} />

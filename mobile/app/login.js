@@ -24,16 +24,11 @@ export default function Login() {
     try {
       setLoading(true);
       const data = await login(email.trim(), motDePasse);
-const oldProfile = useAuthStore.getState().profile;
-
-await saveSession(
-  data.accessToken,
-  data.refreshToken,
-  {
-    ...oldProfile,
-    email: email.trim()
-  }
-);
+      await saveSession(
+        data.accessToken,
+        data.refreshToken,
+        data.profile
+      );
       router.replace("/dashboard");
     } catch (error) {
       Alert.alert("Connexion", error.response?.data?.error || "Impossible de se connecter.");

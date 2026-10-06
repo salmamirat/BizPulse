@@ -57,7 +57,18 @@ async function login(req, res) {
   const accessToken = generateAccessToken(entreprise);
   const refreshToken = generateRefreshToken(entreprise);
 
-  res.json({ accessToken, refreshToken });
+  res.json({
+    accessToken,
+    refreshToken,
+    profile: {
+      id: entreprise.id,
+      nom: entreprise.nom,
+      email: entreprise.email,
+      secteur: entreprise.secteur,
+      about: entreprise.about,
+      owner: entreprise.owner
+    }
+  });
 }
 
 async function refresh(req, res) {

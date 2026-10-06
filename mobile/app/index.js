@@ -25,6 +25,10 @@ export default function Index() {
     };
   }, [player]);
 
+  if (logged === null) return <View style={styles.loadingContainer}><ActivityIndicator color="#6D1B3B" /></View>;
+
+  if (logged) return <Redirect href="/dashboard" />;
+
   if (!videoFinished) {
     return (
       <View style={styles.container}>
@@ -37,8 +41,7 @@ export default function Index() {
     );
   }
 
-  if (logged === null) return <View style={styles.loadingContainer}><ActivityIndicator color="#6D1B3B" /></View>;
-  return logged ? <Redirect href="/dashboard" /> : <Redirect href="/login" />;
+  return <Redirect href="/login" />;
 }
 
 const styles = StyleSheet.create({
