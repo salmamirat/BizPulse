@@ -3,6 +3,7 @@ import { ActivityIndicator, KeyboardAvoidingView, Platform, Pressable, ScrollVie
 import { useFocusEffect } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { SafeAreaView } from "react-native-safe-area-context";
+import Markdown from "react-native-markdown-display";
 import BottomNav from "../components/BottomNav";
 import { getConversations, getMessages, streamMessage } from "../services/api";
 
@@ -106,19 +107,27 @@ export default function Chat() {
           {messages.map((message, index) => (
             <View key={`${index}-${message.role}`} style={[styles.message, message.role === "user" ? styles.userMessage : styles.assistantMessage]}>
               {message.role === "assistant" && <Text style={styles.assistantLabel}>BizPulse IA</Text>}
-              <Text style={message.role === "user" ? styles.userText : styles.assistantText}>{message.contenu || (sending && index === messages.length - 1 ? "L'assistant écrit…" : "")}</Text>
+              {message.role === "assistant" ? (
+                <Markdown style={markdownStyles}>
+                  {message.contenu || (sending && index === messages.length - 1 ? "L'assistant écrit…" : "")}
+                </Markdown>
+              ) : (
+                <Text style={styles.userText}>{message.contenu}</Text>
+              )}
             </View>
           ))}
         </ScrollView>
 
-        <View style={styles.suggestions}>
-          <Text style={styles.suggestTitle}>Suggestions rapides</Text>
-          <View style={styles.suggestList}>
-            <Pressable onPress={() => send("Résume ma situation financière")} style={styles.suggestion}><Text style={styles.suggestionText}>Résume ma situation financière</Text></Pressable>
-            <Pressable onPress={() => send("Quelle catégorie coûte le plus ?")} style={styles.suggestion}><Text style={styles.suggestionText}>Quelle catégorie coûte le plus ?</Text></Pressable>
-            <Pressable onPress={() => send("Simule une embauche à 4 000 DH")} style={styles.suggestion}><Text style={styles.suggestionText}>Simule une embauche à 4 000 DH</Text></Pressable>
+        {messages.length === 0 && (
+          <View style={styles.suggestions}>
+            <Text style={styles.suggestTitle}>Suggestions rapides</Text>
+            <View style={styles.suggestList}>
+              <Pressable onPress={() => send("Résume ma situation financière")} style={styles.suggestion}><Text style={styles.suggestionText}>Résume ma situation financière</Text></Pressable>
+              <Pressable onPress={() => send("Quelle catégorie coûte le plus ?")} style={styles.suggestion}><Text style={styles.suggestionText}>Quelle catégorie coûte le plus ?</Text></Pressable>
+              <Pressable onPress={() => send("Simule une embauche à 4 000 DH")} style={styles.suggestion}><Text style={styles.suggestionText}>Simule une embauche à 4 000 DH</Text></Pressable>
+            </View>
           </View>
-        </View>
+        )}
 
         <View style={styles.inputRow}>
           <TextInput value={question} onChangeText={setQuestion} placeholder="Posez votre question financière…" placeholderTextColor="#77736D" style={styles.input} multiline />
@@ -129,6 +138,15 @@ export default function Chat() {
     </SafeAreaView>
   );
 }
+
+const markdownStyles = {
+  body: { color: "#2D2B2F", fontSize: 14, lineHeight: 22 },
+  strong: { fontWeight: "bold" },
+  p: { marginTop: 0, marginBottom: 8 },
+  table: { borderWidth: 1, borderColor: "#E8E2DA", borderRadius: 4, overflow: "hidden" },
+  th: { backgroundColor: "#F8E9EC", padding: 6, fontWeight: "bold" },
+  td: { padding: 6, borderColor: "#E8E2DA", borderWidth: 1 }
+};
 
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: "#FAF7F5" },
