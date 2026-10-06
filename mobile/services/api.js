@@ -88,6 +88,11 @@ export async function logout() {
   } catch {}
 }
 
+export async function updateProfile(data) {
+  const response = await api.put("/auth/profile", data);
+  return response.data;
+}
+
 export async function getDashboard() {
   const { data } = await api.get("/dashboard/summary");
   return data;

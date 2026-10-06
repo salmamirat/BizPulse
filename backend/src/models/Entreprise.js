@@ -22,6 +22,12 @@ const Entreprise = sequelize.define("Entreprise", {
   },
   secteur: {
     type: DataTypes.STRING
+  },
+  about: {
+    type: DataTypes.TEXT
+  },
+  owner: {
+    type: DataTypes.STRING
   }
 });
 

@@ -7,7 +7,7 @@ import Card from "../components/Card";
 import Button from "../components/Button";
 import BottomNav from "../components/BottomNav";
 import useAuthStore from "../store/authStore";
-import { logout } from "../services/api";
+import { logout, updateProfile } from "../services/api";
 
 const InfoRow = ({ icon, label, value, isEditing, onChangeText, multiline }) => (
   <View style={styles.infoRow}>
@@ -60,16 +60,27 @@ export default function Profile() {
     setIsEditing(true);
   }
 
-  function handleSave() {
-    saveProfile({ 
-      ...profile, 
-      nom: editName.trim(), 
-      email: editEmail.trim(),
-      secteur: editSector.trim(),
-      about: editAbout.trim(),
-      owner: editOwner.trim()
-    });
-    setIsEditing(false);
+  async function handleSave() {
+    try {
+      const updatedData = { 
+        ...profile, 
+        nom: editName.trim(), 
+        email: editEmail.trim(),
+        secteur: editSector.trim(),
+        about: editAbout.trim(),
+        owner: editOwner.trim()
+      };
+      
+      const serverData = await updateProfile(updatedData);
+      
+      saveProfile({
+        ...updatedData,
+        ...serverData
+      });
+      setIsEditing(false);
+    } catch (error) {
+      Alert.alert("Erreur", "Impossible de mettre à jour le profil. L'email est peut-être déjà utilisé.");
+    }
   }
 
   const displayName = profile?.nom || "Mon entreprise";

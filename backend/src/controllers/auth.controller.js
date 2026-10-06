@@ -86,4 +86,31 @@ async function logout(req, res) {
   res.json({ message: "Déconnexion réussie" });
 }
 
-export default { register, login, refresh, logout };
+async function updateProfile(req, res) {
+  const { nom, email, secteur, about, owner } = req.body;
+  const entreprise = await Entreprise.findByPk(req.entrepriseId);
+
+  if (!entreprise) {
+    return res.status(404).json({ error: "Entreprise introuvable" });
+  }
+
+  if (email && email !== entreprise.email) {
+    const existing = await Entreprise.findOne({ where: { email } });
+    if (existing) {
+      return res.status(400).json({ error: "Email déjà utilisé" });
+    }
+  }
+
+  await entreprise.update({ nom, email, secteur, about, owner });
+
+  res.json({
+    id: entreprise.id,
+    nom: entreprise.nom,
+    email: entreprise.email,
+    secteur: entreprise.secteur,
+    about: entreprise.about,
+    owner: entreprise.owner
+  });
+}
+
+export default { register, login, refresh, logout, updateProfile };
