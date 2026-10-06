@@ -8,17 +8,23 @@ import Button from "../components/Button";
 import Card from "../components/Card";
 import { createTransaction, deleteTransaction, updateTransaction } from "../services/api";
 
-const categories = ["Vente", "Loyer", "Transport", "Salaires", "Fournitures", "Marketing", "Autre"];
+const categoriesRevenu = ["Ventes", "Prestations", "Loyer (Revenu)", "Autre"];
+const categoriesDepense = ["Loyer", "Transport", "Salaires", "Fournitures", "Marketing", "Logiciels", "Autre"];
 
 export default function TransactionForm() {
   const router = useRouter();
   const params = useLocalSearchParams();
   const editing = Boolean(params.id);
-  const [type, setType] = useState(params.type || "revenu");
+  const [type, setType] = useState(params.type || "depense");
   const [montant, setMontant] = useState(params.montant ? String(params.montant) : "");
-  const [categorie, setCategorie] = useState(params.categorie || "Marketing");
+  const [categorie, setCategorie] = useState(params.categorie || "Fournitures");
   const [date, setDate] = useState(params.date || new Date().toISOString().slice(0, 10));
   const [loading, setLoading] = useState(false);
+
+  function handleTypeChange(newType) {
+    setType(newType);
+    setCategorie(newType === "revenu" ? "Ventes" : "Fournitures");
+  }
 
   async function save() {
     const value = Number(String(montant).replace(",", ".").replace(/\s/g, ""));
@@ -62,10 +68,10 @@ export default function TransactionForm() {
 
           <Card>
             <View style={styles.types}>
-              <Pressable onPress={() => setType("revenu")} style={[styles.type, type === "revenu" && styles.revenueActive]}>
+              <Pressable onPress={() => handleTypeChange("revenu")} style={[styles.type, type === "revenu" && styles.revenueActive]}>
                 <Text style={[styles.typeText, type === "revenu" && styles.revenueText]}>↓  Revenu</Text>
               </Pressable>
-              <Pressable onPress={() => setType("depense")} style={[styles.type, type === "depense" && styles.expenseActive]}>
+              <Pressable onPress={() => handleTypeChange("depense")} style={[styles.type, type === "depense" && styles.expenseActive]}>
                 <Text style={[styles.typeText, type === "depense" && styles.expenseText]}>↑  Dépense</Text>
               </Pressable>
             </View>
@@ -74,7 +80,7 @@ export default function TransactionForm() {
 
             <Text style={styles.label}>Catégorie</Text>
             <View style={styles.categories}>
-              {categories.map((item) => (
+              {(type === "revenu" ? categoriesRevenu : categoriesDepense).map((item) => (
                 <Pressable key={item} onPress={() => setCategorie(item)} style={[styles.category, categorie === item && styles.categoryActive]}>
                   <Text style={[styles.categoryText, categorie === item && styles.categoryActiveText]}>{item}</Text>
                 </Pressable>
@@ -84,7 +90,6 @@ export default function TransactionForm() {
             <Input label="Date" value={date} onChangeText={setDate} placeholder="2026-05-18" />
             <Button title={loading ? "Enregistrement..." : "Enregistrer"} onPress={save} />
             {editing && <Button title="Supprimer" onPress={remove} danger />}
-            <Pressable onPress={() => router.back()} style={styles.cancel}><Text style={styles.cancelText}>Annuler</Text></Pressable>
           </Card>
         </ScrollView>
       </KeyboardAvoidingView>
@@ -99,7 +104,7 @@ const styles = StyleSheet.create({
   header: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginBottom: 12 },
   title: { color: "#2D2B2F", fontSize: 16, fontWeight: "800" },
   types: { flexDirection: "row", gap: 8, marginBottom: 16 },
-  type: { flex: 1, height: 44, borderRadius: 10, backgroundColor: "#F8E9EC", alignItems: "center", justifyContent: "center" },
+  type: { flex: 1, height: 44, borderRadius: 10, backgroundColor: "#F3F0EC", alignItems: "center", justifyContent: "center" },
   revenueActive: { backgroundColor: "#FFFFFF", borderWidth: 1, borderColor: "#2E9E5B" },
   expenseActive: { backgroundColor: "#B3261E" },
   typeText: { color: "#77736D", fontSize: 12, fontWeight: "700" },
@@ -110,7 +115,5 @@ const styles = StyleSheet.create({
   category: { paddingHorizontal: 10, height: 32, borderRadius: 9, backgroundColor: "#F8E9EC", justifyContent: "center" },
   categoryActive: { backgroundColor: "#FFFFFF", borderWidth: 1, borderColor: "#6D1B3B" },
   categoryText: { color: "#2D2B2F", fontSize: 10 },
-  categoryActiveText: { color: "#6D1B3B", fontWeight: "700" },
-  cancel: { alignItems: "center", paddingTop: 11 },
-  cancelText: { color: "#2D2B2F", fontSize: 11, fontWeight: "600" }
+  categoryActiveText: { color: "#6D1B3B", fontWeight: "700" }
 });
