@@ -55,7 +55,7 @@ export default function Dashboard() {
           <View style={styles.header}>
             <View>
               <Text style={styles.pageTitle}>Tableau de bord</Text>
-              <Text style={styles.hello}>Bonjour, {profile?.nom || "votre entreprise"}</Text>
+              <Text style={styles.hello}>Bonjour, {profile?.nom || "Mon Business"}</Text>
             </View>
             <Pressable onPress={() => router.push("/profile")} style={styles.avatar}>
               <Ionicons name="person" size={15} color="#FFFFFF" />
@@ -72,11 +72,11 @@ export default function Dashboard() {
 
           <View style={styles.metrics}>
             <Card style={styles.metric}>
-              <View style={styles.metricTitle}><Text style={styles.label}>Revenus</Text><Text style={styles.up}>↗</Text></View>
+              <View style={styles.metricTitle}><Text style={styles.label}>Revenus</Text><Ionicons name="arrow-up-circle-outline" size={18} color="#2E9E5B" /></View>
               <Text style={styles.income}>{money(summary.revenus)}</Text>
             </Card>
             <Card style={styles.metric}>
-              <View style={styles.metricTitle}><Text style={styles.label}>Dépenses</Text><Text style={styles.down}>↘</Text></View>
+              <View style={styles.metricTitle}><Text style={styles.label}>Dépenses</Text><Ionicons name="arrow-down-circle-outline" size={18} color="#B3261E" /></View>
               <Text style={styles.expense}>{money(summary.depenses)}</Text>
             </Card>
           </View>
@@ -122,8 +122,7 @@ const styles = StyleSheet.create({
   metricTitle: { flexDirection: "row", justifyContent: "space-between" },
   income: { color: "#2E9E5B", fontSize: 20, fontWeight: "800", marginTop: 6 },
   expense: { color: "#B3261E", fontSize: 20, fontWeight: "800", marginTop: 6 },
-  up: { color: "#2E9E5B", fontSize: 16 },
-  down: { color: "#B3261E", fontSize: 16 },
+  expense: { color: "#B3261E", fontSize: 20, fontWeight: "800", marginTop: 6 },
   sectionTitle: { color: "#2D2B2F", fontSize: 18, fontWeight: "800", marginBottom: 14 },
   category: { marginBottom: 14 },
   categoryLine: { flexDirection: "row", justifyContent: "space-between", marginBottom: 6 },
