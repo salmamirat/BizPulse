@@ -11,7 +11,6 @@ import { deleteTransaction, getTransactions } from "../services/api";
 export default function Transactions() {
   const router = useRouter();
   const [type, setType] = useState("");
-  const [sort, setSort] = useState("date");
   const [items, setItems] = useState([]);
   const [page, setPage] = useState(1);
   const [total, setTotal] = useState(0);
@@ -20,7 +19,7 @@ export default function Transactions() {
   const load = useCallback(async (nextPage = 1, append = false) => {
     try {
       setLoading(true);
-      const data = await getTransactions({ page: nextPage, limit: 10, ...(type ? { type } : {}), sort });
+      const data = await getTransactions({ page: nextPage, limit: 10, ...(type ? { type } : {}), sort: "date" });
       setItems((old) => append ? [...old, ...(data.data || [])] : (data.data || []));
       setPage(nextPage);
       setTotal(data.total || 0);
@@ -29,7 +28,7 @@ export default function Transactions() {
     } finally {
       setLoading(false);
     }
-  }, [type, sort]);
+  }, [type]);
 
   useFocusEffect(useCallback(() => { load(); }, [load]));
 
@@ -68,14 +67,6 @@ export default function Transactions() {
             ))}
           </View>
 
-          <View style={styles.sortHeader}><Text style={styles.sortLabel}>Trier par :</Text><View style={styles.sorts}>
-            {[['date', 'Date ↓'], ['montant', 'Montant'], ['categorie', 'Catégorie']].map(([value, label]) => (
-              <Pressable key={value} onPress={() => setSort(value)} style={[styles.sort, sort === value && styles.sortActive]}>
-                <Text style={[styles.sortText, sort === value && styles.sortActiveText]}>{label}</Text>
-              </Pressable>
-            ))}
-          </View></View>
-
           <Card style={styles.listCard}>
             {loading && items.length === 0 ? <ActivityIndicator color="#6D1B3B" /> : items.length === 0 ? (
               <Text style={styles.empty}>Aucune transaction.</Text>
@@ -109,13 +100,6 @@ const styles = StyleSheet.create({
   activeTab: { backgroundColor: "#FFFFFF", borderWidth: 1, borderColor: "#E8E2DA" },
   tabText: { color: "#77736D", fontSize: 14 },
   activeTabText: { color: "#2D2B2F", fontWeight: "700" },
-  sortHeader: { flexDirection: "row", alignItems: "center", gap: 7 },
-  sortLabel: { color: "#77736D", fontSize: 13 },
-  sorts: { flex: 1, flexDirection: "row", gap: 6 },
-  sort: { paddingHorizontal: 9, height: 32, justifyContent: "center", borderRadius: 9, backgroundColor: "#F8E9EC" },
-  sortActive: { backgroundColor: "#FFFFFF", borderWidth: 1, borderColor: "#E8E2DA" },
-  sortText: { color: "#77736D", fontSize: 12 },
-  sortActiveText: { color: "#2D2B2F", fontWeight: "700" },
   listCard: { paddingVertical: 4 },
   empty: { color: "#77736D", textAlign: "center", paddingVertical: 24, fontSize: 14 },
   more: { height: 44, backgroundColor: "#FFFFFF", borderWidth: 1, borderColor: "#E8E2DA", borderRadius: 12, alignItems: "center", justifyContent: "center" },
