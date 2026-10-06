@@ -50,7 +50,8 @@ content: `${systemPrompt}\nDate d'aujourd'hui : ${today}. Utilise toujours le pa
         tool_call_id: toolCall.id,
         content: JSON.stringify(functionResult)
       }
-    ]
+    ],
+    tools: tools.toolsSchema
   });
 
   return {
