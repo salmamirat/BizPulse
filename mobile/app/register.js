@@ -22,6 +22,13 @@ export default function Register() {
       Alert.alert("Inscription", "Veuillez remplir les champs obligatoires.");
       return;
     }
+    
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email.trim())) {
+      Alert.alert("Inscription", "Veuillez entrer une adresse email valide.");
+      return;
+    }
+
     if (motDePasse.length < 6) {
       Alert.alert("Inscription", "Le mot de passe doit contenir au moins 6 caractères.");
       return;
@@ -62,7 +69,7 @@ export default function Register() {
         <Input label="Mot de passe (6 caractères min)" value={motDePasse} onChangeText={setMotDePasse} placeholder="Au moins 6 caractères" secure />
         <Input label="Secteur d'activité (optionnel)" value={secteur} onChangeText={setSecteur} placeholder="Ex: Commerce, Services..." />
 
-        <Button title={loading ? "Création..." : "Créer mon compte"} onPress={handleRegister} />
+        <Button title={loading ? "Création..." : "Créer mon compte"} onPress={handleRegister} disabled={loading} />
 
         <Text style={styles.loginText}>Déjà un compte ? <Link href="/login" style={styles.link}>Se connecter</Link></Text>
         <Text style={styles.legal}>En continuant, vous acceptez les conditions d'utilisation et la politique de confidentialité.</Text>

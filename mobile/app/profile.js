@@ -143,6 +143,7 @@ export default function Profile() {
           ) : (
             <Button title="Se déconnecter" onPress={() => Alert.alert("Déconnexion", "Voulez-vous vous déconnecter ?", [{ text: "Annuler", style: "cancel" }, { text: "Déconnecter", style: "destructive", onPress: handleLogout }])} danger />
           )}
+          <Text style={styles.version}>BizPulse v1.0.0</Text>
         </ScrollView>
         <BottomNav />
       </View>
@@ -177,5 +178,6 @@ const styles = StyleSheet.create({
   emptyValue: { color: "#5C4D51", fontStyle: "italic" },
   input: { color: "#1D1B17", fontSize: 14, borderBottomWidth: 1, borderBottomColor: "#800020", paddingBottom: 4 },
   multilineInput: { minHeight: 60, textAlignVertical: "top" },
-  spacer: { flex: 1, minHeight: 20 }
+  spacer: { flex: 1, minHeight: 20 },
+  version: { textAlign: "center", color: "#7A6A6D", fontSize: 12, marginTop: 16 }
 });

@@ -1,11 +1,12 @@
 import { useCallback, useState } from "react";
-import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View, Image } from "react-native";
+import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { useFocusEffect, useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Card from "../components/Card";
 import Button from "../components/Button";
 import BottomNav from "../components/BottomNav";
+import TransactionItem from "../components/TransactionItem";
 import { getDashboard, getTransactions } from "../services/api";
 import useAuthStore from "../store/authStore";
 
@@ -16,16 +17,19 @@ export default function Dashboard() {
   const profile = useAuthStore((state) => state.profile);
   const [summary, setSummary] = useState({ revenus: 0, depenses: 0, solde: 0 });
   const [categories, setCategories] = useState([]);
+  const [recent, setRecent] = useState([]);
   const [loading, setLoading] = useState(true);
 
   const load = useCallback(async () => {
     try {
       setLoading(true);
-      const [summaryData, expenseData] = await Promise.all([
+      const [summaryData, expenseData, recentData] = await Promise.all([
         getDashboard(),
-        getTransactions({ page: 1, limit: 100, type: "depense", sort: "montant" })
+        getTransactions({ page: 1, limit: 100, type: "depense", sort: "montant" }),
+        getTransactions({ page: 1, limit: 3 })
       ]);
       setSummary(summaryData);
+      setRecent(recentData.data || []);
 
       const totals = {};
       (expenseData.data || []).forEach((item) => {
@@ -35,6 +39,7 @@ export default function Dashboard() {
     } catch {
       setSummary({ revenus: 0, depenses: 0, solde: 0 });
       setCategories([]);
+      setRecent([]);
     } finally {
       setLoading(false);
     }
@@ -67,7 +72,7 @@ export default function Dashboard() {
               <Text style={styles.label}>Solde estimé</Text>
               <Ionicons name="wallet-outline" size={18} color="#6D1B3B" />
             </View>
-            <Text style={styles.balance}>{money(summary.solde)}</Text>
+            <Text style={[styles.balance, summary.solde < 0 && { color: "#B3261E" }]}>{money(summary.solde)}</Text>
           </Card>
 
           <View style={styles.metrics}>
@@ -96,7 +101,16 @@ export default function Dashboard() {
             ))}
           </Card>
 
-          <Button title="＋  Ajouter une transaction" onPress={() => router.push("/transaction-form")} />
+          {recent.length > 0 && (
+            <Card>
+              <Text style={styles.sectionTitle}>Dernières transactions</Text>
+              {recent.map((item) => (
+                <TransactionItem key={item.id} item={item} onPress={() => router.push({ pathname: "/transaction-form", params: item })} />
+              ))}
+            </Card>
+          )}
+
+          <Button title="Ajouter une transaction" icon="add" onPress={() => router.push("/transaction-form")} />
         </ScrollView>
         <BottomNav />
       </View>

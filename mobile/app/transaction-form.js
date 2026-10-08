@@ -69,10 +69,10 @@ export default function TransactionForm() {
           <Card>
             <View style={styles.types}>
               <Pressable onPress={() => handleTypeChange("revenu")} style={[styles.type, type === "revenu" && styles.revenueActive]}>
-                <Text style={[styles.typeText, type === "revenu" && styles.revenueText]}>↓  Revenu</Text>
+                <Text style={[styles.typeText, type === "revenu" && styles.revenueText]}>↑  Revenu</Text>
               </Pressable>
               <Pressable onPress={() => handleTypeChange("depense")} style={[styles.type, type === "depense" && styles.expenseActive]}>
-                <Text style={[styles.typeText, type === "depense" && styles.expenseText]}>↑  Dépense</Text>
+                <Text style={[styles.typeText, type === "depense" && styles.expenseText]}>↓  Dépense</Text>
               </Pressable>
             </View>
 
@@ -100,15 +100,15 @@ export default function TransactionForm() {
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: "#FAF7F5" },
   page: { flex: 1 },
-  content: { flexGrow: 1, padding: 16, justifyContent: "center" },
+  content: { flexGrow: 1, padding: 16, paddingTop: 30 },
   header: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginBottom: 12 },
   title: { color: "#2D2B2F", fontSize: 16, fontWeight: "800" },
   types: { flexDirection: "row", gap: 8, marginBottom: 16 },
   type: { flex: 1, height: 44, borderRadius: 10, backgroundColor: "#F3F0EC", alignItems: "center", justifyContent: "center" },
-  revenueActive: { backgroundColor: "#FFFFFF", borderWidth: 1, borderColor: "#2E9E5B" },
+  revenueActive: { backgroundColor: "#2E9E5B" },
   expenseActive: { backgroundColor: "#B3261E" },
   typeText: { color: "#77736D", fontSize: 12, fontWeight: "700" },
-  revenueText: { color: "#2E9E5B" },
+  revenueText: { color: "#FFFFFF" },
   expenseText: { color: "#FFFFFF" },
   label: { color: "#2D2B2F", fontSize: 12, fontWeight: "600", marginBottom: 7 },
   categories: { flexDirection: "row", flexWrap: "wrap", gap: 7, marginBottom: 14 },

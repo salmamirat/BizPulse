@@ -7,24 +7,49 @@ import Markdown from "react-native-markdown-display";
 import BottomNav from "../components/BottomNav";
 import { getConversations, getMessages, streamMessage } from "../services/api";
 
+let globalConversationId = undefined;
+let globalInitialized = false;
+
 export default function Chat() {
-  const [conversationId, setConversationId] = useState(null);
+  const [conversationId, setConversationId] = useState(globalConversationId || null);
   const [messages, setMessages] = useState([]);
   const [question, setQuestion] = useState("");
   const [sending, setSending] = useState(false);
   const [conversations, setConversations] = useState([]);
+  const [refreshing, setRefreshing] = useState(false);
 
   const load = useCallback(async () => {
+    setRefreshing(true);
     try {
       const list = await getConversations();
       setConversations(list || []);
-      if (list?.[0]) {
-        setConversationId(list[0].id);
-        setMessages(await getMessages(list[0].id));
-      }
+      
+      setConversationId((currentId) => {
+        if (currentId && list?.find(c => c.id === currentId)) {
+          getMessages(currentId).then(setMessages).catch(() => {});
+          globalConversationId = currentId;
+          return currentId;
+        } else if (!globalInitialized && list?.[0]) {
+          globalInitialized = true;
+          globalConversationId = list[0].id;
+          getMessages(list[0].id).then(setMessages).catch(() => {});
+          return list[0].id;
+        }
+        
+        if (!currentId) {
+          globalConversationId = null;
+          setMessages([]);
+          return null;
+        }
+        globalConversationId = null;
+        setMessages([]);
+        return null;
+      });
     } catch {
       setConversations([]);
       setMessages([]);
+    } finally {
+      setRefreshing(false);
     }
   }, []);
 
@@ -32,12 +57,14 @@ export default function Chat() {
 
   async function openConversation(id) {
     try {
+      globalConversationId = id;
       setConversationId(id);
       setMessages(await getMessages(id));
     } catch {}
   }
 
   function newConversation() {
+    globalConversationId = null;
     setConversationId(null);
     setMessages([]);
   }
@@ -58,7 +85,10 @@ export default function Chat() {
           next[next.length - 1] = { role: "assistant", contenu: answer };
           return next;
         });
-      }, (id) => setConversationId(id));
+      }, (id) => {
+        globalConversationId = id;
+        setConversationId(id);
+      });
       setConversations(await getConversations());
     } catch {
       setMessages((old) => {
@@ -81,7 +111,9 @@ export default function Chat() {
           </View>
           <View style={styles.actions}>
             <Pressable onPress={newConversation} style={styles.newButton}><Text style={styles.newText}>＋ Nouveau</Text></Pressable>
-            <Pressable onPress={load} hitSlop={8}><Ionicons name="refresh" size={17} color="#6D1B3B" /></Pressable>
+            <Pressable onPress={() => load()} hitSlop={8} style={{ width: 17, height: 17, justifyContent: 'center', alignItems: 'center' }}>
+              {refreshing ? <ActivityIndicator size="small" color="#6D1B3B" /> : <Ionicons name="refresh" size={17} color="#6D1B3B" />}
+            </Pressable>
           </View>
         </View>
 

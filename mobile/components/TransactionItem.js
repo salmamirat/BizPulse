@@ -8,7 +8,7 @@ export default function TransactionItem({ item, onPress }) {
   return (
     <Pressable onPress={onPress} style={({ pressed }) => [styles.row, pressed && styles.pressed]}>
       <View style={[styles.icon, income ? styles.incomeBg : styles.expenseBg]}>
-        <Ionicons name={income ? "arrow-down" : "arrow-up"} size={15} color={income ? "#2E9E5B" : "#B3261E"} />
+        <Ionicons name={income ? "arrow-up" : "arrow-down"} size={15} color={income ? "#2E9E5B" : "#B3261E"} />
       </View>
       <View style={styles.info}>
         <Text style={styles.title} numberOfLines={1}>{item.categorie}</Text>

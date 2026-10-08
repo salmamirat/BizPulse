@@ -13,6 +13,7 @@ const app = express();
 
 app.use(express.json());
 
+
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 100
@@ -20,7 +21,7 @@ const limiter = rateLimit({
 
 app.use(limiter);
 
-app.get("/api/health", (req, res) => {
+app.get("/api/health", (_req, res) => {
   res.json({ status: "ok" });
 });
 
