@@ -6,16 +6,17 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import Card from "../components/Card";
 import Button from "../components/Button";
 import BottomNav from "../components/BottomNav";
-import TransactionItem from "../components/TransactionItem";
 import { getDashboard, getTransactions } from "../services/api";
 import useAuthStore from "../store/authStore";
+import { LineChart } from "react-native-chart-kit";
+import { Dimensions } from "react-native";
 
 const money = (value) => `${Number(value || 0).toLocaleString("fr-FR")} DH`;
 
 export default function Dashboard() {
   const router = useRouter();
   const profile = useAuthStore((state) => state.profile);
-  const [summary, setSummary] = useState({ revenus: 0, depenses: 0, solde: 0 });
+  const [summary, setSummary] = useState({ revenus: 0, depenses: 0, solde: 0, evolution: null });
   const [categories, setCategories] = useState([]);
   const [recent, setRecent] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -37,7 +38,7 @@ export default function Dashboard() {
       });
       setCategories(Object.entries(totals).sort((a, b) => b[1] - a[1]).slice(0, 5));
     } catch {
-      setSummary({ revenus: 0, depenses: 0, solde: 0 });
+      setSummary({ revenus: 0, depenses: 0, solde: 0, evolution: null });
       setCategories([]);
       setRecent([]);
     } finally {
@@ -70,7 +71,7 @@ export default function Dashboard() {
           <Card style={styles.balanceCard}>
             <View style={styles.cardHeader}>
               <Text style={styles.label}>Solde estimé</Text>
-              <Ionicons name="wallet-outline" size={18} color="#6D1B3B" />
+              <Ionicons name="eye-outline" size={18} color="#6D1B3B" />
             </View>
             <Text style={[styles.balance, summary.solde < 0 && { color: "#B3261E" }]}>{money(summary.solde)}</Text>
           </Card>
@@ -101,16 +102,37 @@ export default function Dashboard() {
             ))}
           </Card>
 
-          {recent.length > 0 && (
-            <Card>
-              <Text style={styles.sectionTitle}>Dernières transactions</Text>
-              {recent.map((item) => (
-                <TransactionItem key={item.id} item={item} onPress={() => router.push({ pathname: "/transaction-form", params: item })} />
-              ))}
-            </Card>
-          )}
+          <Card>
+            <Text style={styles.sectionTitle}>Évolution</Text>
+            {summary.evolution ? (
+              <LineChart
+                data={{
+                  labels: summary.evolution.labels,
+                  datasets: [
+                    { data: summary.evolution.revenus, color: () => 'green' },
+                    { data: summary.evolution.depenses, color: () => 'red' }
+                  ]
+                }}
+                width={Dimensions.get("window").width - 64}
+                height={220}
+                chartConfig={{
+                  backgroundColor: "#FFFFFF",
+                  backgroundGradientFrom: "#FFFFFF",
+                  backgroundGradientTo: "#FFFFFF",
+                  decimalPlaces: 0,
+                  color: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
+                  labelColor: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`
+                }}
+                style={{ marginVertical: 8 }}
+              />
+            ) : (
+              <ActivityIndicator color="#6D1B3B" />
+            )}
+          </Card>
 
-          <Button title="Ajouter une transaction" icon="add" onPress={() => router.push("/transaction-form")} />
+
+
+          <Button title="Ajouter une transaction" onPress={() => router.push("/transaction-form")} />
         </ScrollView>
         <BottomNav />
       </View>

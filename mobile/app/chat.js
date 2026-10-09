@@ -1,5 +1,5 @@
-import { useCallback, useState } from "react";
-import { ActivityIndicator, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
+import { useCallback, useState, useEffect, useRef } from "react";
+import { ActivityIndicator, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View, Animated } from "react-native";
 import { useFocusEffect } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -140,9 +140,11 @@ export default function Chat() {
             <View key={`${index}-${message.role}`} style={[styles.message, message.role === "user" ? styles.userMessage : styles.assistantMessage]}>
               {message.role === "assistant" && <Text style={styles.assistantLabel}>BizPulse IA</Text>}
               {message.role === "assistant" ? (
-                <Markdown style={markdownStyles}>
-                  {message.contenu || (sending && index === messages.length - 1 ? "L'assistant écrit…" : "")}
-                </Markdown>
+                message.contenu ? (
+                  <Markdown style={markdownStyles}>{message.contenu}</Markdown>
+                ) : (
+                  (sending && index === messages.length - 1) ? <TypingIndicator /> : <Text></Text>
+                )
               ) : (
                 <Text style={styles.userText}>{message.contenu}</Text>
               )}
@@ -211,6 +213,28 @@ const styles = StyleSheet.create({
   suggestion: { backgroundColor: "#FFFFFF", borderWidth: 1, borderColor: "#E8E2DA", borderRadius: 8, paddingHorizontal: 12, paddingVertical: 10 },
   suggestionText: { color: "#2D2B2F", fontSize: 13 },
   inputRow: { flexDirection: "row", padding: 10, gap: 8, backgroundColor: "#FAF7F5", borderTopWidth: 1, borderTopColor: "#E8E2DA" },
-  input: { flex: 1, minHeight: 48, maxHeight: 100, backgroundColor: "#FFFFFF", borderWidth: 1, borderColor: "#E8E2DA", borderRadius: 12, paddingHorizontal: 14, paddingVertical: 12, color: "#2D2B2F", fontSize: 14 },
-  send: { width: 48, height: 48, borderRadius: 12, backgroundColor: "#6D1B3B", alignItems: "center", justifyContent: "center" }
+  input: { flex: 1, minHeight: 52, maxHeight: 100, backgroundColor: "#FFFFFF", borderWidth: 1, borderColor: "#E8E2DA", borderRadius: 12, paddingHorizontal: 14, paddingTop: 16, paddingBottom: 16, color: "#2D2B2F", fontSize: 14 },
+  send: { width: 52, height: 52, borderRadius: 12, backgroundColor: "#6D1B3B", alignItems: "center", justifyContent: "center" }
 });
+
+const TypingIndicator = () => {
+  const opacities = [useRef(new Animated.Value(0.3)).current, useRef(new Animated.Value(0.3)).current, useRef(new Animated.Value(0.3)).current];
+
+  useEffect(() => {
+    const animate = () => {
+      Animated.sequence([
+        Animated.stagger(200, opacities.map(anim => Animated.timing(anim, { toValue: 1, duration: 400, useNativeDriver: true }))),
+        Animated.stagger(200, opacities.map(anim => Animated.timing(anim, { toValue: 0.3, duration: 400, useNativeDriver: true })))
+      ]).start((result) => { if (result.finished) animate(); });
+    };
+    animate();
+  }, []);
+
+  return (
+    <View style={{ flexDirection: "row", alignItems: "center", gap: 5, height: 22, paddingHorizontal: 4, paddingTop: 4 }}>
+      {opacities.map((anim, i) => (
+        <Animated.View key={i} style={{ width: 7, height: 7, borderRadius: 3.5, backgroundColor: "#6D1B3B", opacity: anim }} />
+      ))}
+    </View>
+  );
+};

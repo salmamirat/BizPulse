@@ -26,7 +26,10 @@ const InfoRow = ({ icon, label, value, isEditing, onChangeText, multiline }) => 
           multiline={multiline}
         />
       ) : (
-        <Text style={[styles.infoValue, !value && styles.emptyValue]}>{value || "Non renseigné"}</Text>
+        <View style={{ flexDirection: "row", alignItems: "center" }}>
+          <Text style={[styles.infoValue, !value && styles.emptyValue]}>{value || `Ajouter ${label.toLowerCase()}`}</Text>
+          {!value && <Ionicons name="add-outline" size={14} color="#800020" style={{ marginLeft: 4 }} />}
+        </View>
       )}
     </View>
   </View>
@@ -99,7 +102,9 @@ export default function Profile() {
               <Text style={styles.title}>Profil</Text>
             </View>
             {!isEditing ? (
-              <Pressable onPress={handleEdit} hitSlop={10}><Text style={styles.editText}>Modifier</Text></Pressable>
+              <Pressable onPress={handleEdit} hitSlop={10} style={{ padding: 4, backgroundColor: "#EED5DC", borderRadius: 12, width: 32, height: 32, alignItems: "center", justifyContent: "center" }}>
+                <Ionicons name="pencil" size={16} color="#800020" />
+              </Pressable>
             ) : (
               <Pressable onPress={() => setIsEditing(false)} hitSlop={10}><Text style={styles.cancelText}>Annuler</Text></Pressable>
             )}
@@ -175,7 +180,7 @@ const styles = StyleSheet.create({
   infoTextContainer: { flex: 1, justifyContent: "center" },
   infoLabel: { color: "#4A3F41", fontSize: 13, marginBottom: 4 },
   infoValue: { color: "#1D1B17", fontSize: 14, lineHeight: 22 },
-  emptyValue: { color: "#5C4D51", fontStyle: "italic" },
+  emptyValue: { color: "#800020", fontStyle: "italic", fontSize: 13 },
   input: { color: "#1D1B17", fontSize: 14, borderBottomWidth: 1, borderBottomColor: "#800020", paddingBottom: 4 },
   multilineInput: { minHeight: 60, textAlignVertical: "top" },
   spacer: { flex: 1, minHeight: 20 },

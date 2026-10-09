@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Alert, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import DateTimePicker from "@react-native-community/datetimepicker";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -19,6 +20,8 @@ export default function TransactionForm() {
   const [montant, setMontant] = useState(params.montant ? String(params.montant) : "");
   const [categorie, setCategorie] = useState(params.categorie || "Fournitures");
   const [date, setDate] = useState(params.date || new Date().toISOString().slice(0, 10));
+  const [dateObj, setDateObj] = useState(params.date ? new Date(params.date) : new Date());
+  const [showDatePicker, setShowDatePicker] = useState(false);
   const [loading, setLoading] = useState(false);
 
   function handleTypeChange(newType) {
@@ -87,7 +90,27 @@ export default function TransactionForm() {
               ))}
             </View>
 
-            <Input label="Date" value={date} onChangeText={setDate} placeholder="2026-05-18" />
+            <Text style={styles.label}>Date</Text>
+            <Pressable onPress={() => setShowDatePicker(true)} style={styles.datePickerBtn}>
+              <Text style={styles.datePickerText}>{date}</Text>
+              <Ionicons name="calendar-outline" size={18} color="#77736D" />
+            </Pressable>
+            {showDatePicker && (
+              <DateTimePicker
+                value={dateObj}
+                mode="date"
+                display="default"
+                onChange={(event, selectedDate) => {
+                  setShowDatePicker(Platform.OS === "ios");
+                  if (selectedDate) {
+                    setDateObj(selectedDate);
+                    setDate(selectedDate.toISOString().slice(0, 10));
+                  }
+                }}
+              />
+            )}
+            
+            <View style={styles.btnSpacer} />
             <Button title={loading ? "Enregistrement..." : "Enregistrer"} onPress={save} />
             {editing && <Button title="Supprimer" onPress={remove} danger />}
           </Card>
@@ -113,7 +136,10 @@ const styles = StyleSheet.create({
   label: { color: "#2D2B2F", fontSize: 12, fontWeight: "600", marginBottom: 7 },
   categories: { flexDirection: "row", flexWrap: "wrap", gap: 7, marginBottom: 14 },
   category: { paddingHorizontal: 10, height: 32, borderRadius: 9, backgroundColor: "#F8E9EC", justifyContent: "center" },
-  categoryActive: { backgroundColor: "#FFFFFF", borderWidth: 1, borderColor: "#6D1B3B" },
+  categoryActive: { backgroundColor: "#F8F4F0", borderWidth: 1, borderColor: "#6D1B3B" },
   categoryText: { color: "#2D2B2F", fontSize: 10 },
-  categoryActiveText: { color: "#6D1B3B", fontWeight: "700" }
+  categoryActiveText: { color: "#6D1B3B", fontWeight: "700" },
+  datePickerBtn: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", height: 48, backgroundColor: "#FFFFFF", borderWidth: 1, borderColor: "#E8E2DA", borderRadius: 12, paddingHorizontal: 14 },
+  datePickerText: { color: "#2D2B2F", fontSize: 14 },
+  btnSpacer: { height: 24 }
 });

@@ -97,12 +97,12 @@ const styles = StyleSheet.create({
   subtitle: { color: "#77736D", fontSize: 14, marginTop: 2 },
   tabs: { flexDirection: "row", backgroundColor: "#F8E9EC", borderRadius: 12, padding: 4 },
   tab: { flex: 1, height: 40, alignItems: "center", justifyContent: "center", borderRadius: 9 },
-  activeTab: { backgroundColor: "#FFFFFF", borderWidth: 1, borderColor: "#E8E2DA" },
+  activeTab: { backgroundColor: "#FFFFFF", borderWidth: 1, borderColor: "#E8E2DA", elevation: 2, shadowColor: "#000", shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.1, shadowRadius: 2 },
   tabText: { color: "#77736D", fontSize: 14 },
   activeTabText: { color: "#2D2B2F", fontWeight: "700" },
   listCard: { paddingVertical: 4 },
   empty: { color: "#77736D", textAlign: "center", paddingVertical: 24, fontSize: 14 },
   more: { height: 44, backgroundColor: "#FFFFFF", borderWidth: 1, borderColor: "#E8E2DA", borderRadius: 12, alignItems: "center", justifyContent: "center" },
   moreText: { color: "#2D2B2F", fontSize: 14, fontWeight: "700" },
-  floating: { position: "absolute", right: 18, bottom: 76, width: 42, height: 42, borderRadius: 21, backgroundColor: "#6D1B3B", alignItems: "center", justifyContent: "center" }
+  floating: { position: "absolute", right: 18, bottom: 84, width: 56, height: 56, borderRadius: 28, backgroundColor: "#6D1B3B", alignItems: "center", justifyContent: "center", elevation: 4, shadowColor: "#000", shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.25, shadowRadius: 3.84 }
 });
