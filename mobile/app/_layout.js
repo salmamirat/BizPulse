@@ -1,6 +1,9 @@
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Stack, usePathname, useRouter } from "expo-router";
 import { useEffect } from "react";
 import useAuthStore from "../store/authStore";
+
+const queryClient = new QueryClient();
 
 export default function Layout() {
   const router = useRouter();
@@ -16,5 +19,7 @@ export default function Layout() {
     if (accessToken && publicPage) router.replace("/dashboard");
   }, [accessToken, loading, pathname]);
 
-  return <Stack screenOptions={{ headerShown: false }} />;
+  return <QueryClientProvider client={queryClient}>
+      <Stack screenOptions={{ headerShown: false }} />
+    </QueryClientProvider>;
 }

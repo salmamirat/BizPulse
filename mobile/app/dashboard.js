@@ -103,14 +103,26 @@ export default function Dashboard() {
           </Card>
 
           <Card>
-            <Text style={styles.sectionTitle}>Évolution</Text>
+            <View style={styles.chartHeader}>
+              <Text style={styles.chartTitle}>Évolution</Text>
+              <View style={styles.legendContainer}>
+                <View style={styles.legendItem}>
+                  <View style={[styles.legendDot, { backgroundColor: "#2E9E5B" }]} />
+                  <Text style={styles.legendText}>Revenus</Text>
+                </View>
+                <View style={styles.legendItem}>
+                  <View style={[styles.legendDot, { backgroundColor: "#B3261E" }]} />
+                  <Text style={styles.legendText}>Dépenses</Text>
+                </View>
+              </View>
+            </View>
             {summary.evolution ? (
               <LineChart
                 data={{
                   labels: summary.evolution.labels,
                   datasets: [
-                    { data: summary.evolution.revenus, color: () => 'green' },
-                    { data: summary.evolution.depenses, color: () => 'red' }
+                    { data: summary.evolution.revenus, color: () => '#2E9E5B' },
+                    { data: summary.evolution.depenses, color: () => '#B3261E' }
                   ]
                 }}
                 width={Dimensions.get("window").width - 64}
@@ -166,5 +178,11 @@ const styles = StyleSheet.create({
   categoryValue: { color: "#77736D", fontSize: 14 },
   bar: { height: 8, borderRadius: 4, backgroundColor: "#F8E9EC", overflow: "hidden" },
   fill: { height: 8, borderRadius: 4, backgroundColor: "#6D1B3B" },
-  empty: { color: "#77736D", fontSize: 14 }
+  empty: { color: "#77736D", fontSize: 14 },
+  chartHeader: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 6 },
+  chartTitle: { color: "#2D2B2F", fontSize: 18, fontWeight: "800" },
+  legendContainer: { flexDirection: "row", gap: 12 },
+  legendItem: { flexDirection: "row", alignItems: "center", gap: 5 },
+  legendDot: { width: 8, height: 8, borderRadius: 4 },
+  legendText: { fontSize: 12, color: "#77736D", fontWeight: "600" }
 });

@@ -27,7 +27,7 @@ const InfoRow = ({ icon, label, value, isEditing, onChangeText, multiline }) => 
         />
       ) : (
         <View style={{ flexDirection: "row", alignItems: "center" }}>
-          <Text style={[styles.infoValue, !value && styles.emptyValue]}>{value || `Ajouter ${label.toLowerCase()}`}</Text>
+          <Text style={[styles.infoValue, !value && styles.emptyValue]}>{value || "Ajouter"}</Text>
           {!value && <Ionicons name="add-outline" size={14} color="#800020" style={{ marginLeft: 4 }} />}
         </View>
       )}
