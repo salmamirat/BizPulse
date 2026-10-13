@@ -14,12 +14,14 @@ const app = express();
 app.use(express.json());
 
 
+// Limiteur global : 500 requêtes par 15 min par IP (adapté pour les démos et navigations fréquentes)
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 100
+  max: 500
 });
 
 app.use(limiter);
+
 
 app.get("/api/health", (_req, res) => {
   res.json({ status: "ok" });

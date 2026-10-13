@@ -17,6 +17,6 @@ router.post("/register", validate(authValidation.registerSchema), authController
 router.post("/login", loginLimiter, validate(authValidation.loginSchema), authController.login);
 router.post("/logout", authController.logout);
 router.post("/refresh", authController.refresh);
-router.put("/profile", authMiddleware, authController.updateProfile);
+router.put("/profile", authMiddleware, validate(authValidation.profileSchema), authController.updateProfile);
 
 export default router;

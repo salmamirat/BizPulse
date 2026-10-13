@@ -258,27 +258,23 @@ Chaque message contient :
 
 ---
 
-# ⚡ Streaming des réponses
+# ⚡ Streaming et affichage des réponses
 
-Les réponses de l'assistant sont affichées progressivement dans l'application mobile via un endpoint SSE dédié (`/api/agent/chat/stream`).
+BizPulse intègre deux modes pour les réponses de l'assistant :
+
+1. **Côté serveur** : un endpoint SSE dédié (`/api/agent/chat/stream`) transmet la réponse par morceaux encodés en JSON. Dans la version actuelle, ce streaming est simulé (le serveur attend la réponse complète du modèle IA puis la diffuse de façon cadencée et progressive).
+2. **Côté mobile** : l'application mobile utilise l'endpoint standard `POST /api/agent/chat`. Elle affiche un indicateur visuel de frappe dynamique pendant le traitement de la requête, puis restitue immédiatement la réponse intégrale formatée en Markdown. Ce choix garantit une fiabilité totale sous React Native/Expo sans risque d'envoi en double.
 
 ```text
-Agent IA
-   ↓
-Backend Express (endpoint SSE)
-   ↓
-Application Mobile
-   ↓
-Affichage progressif
+Application Mobile (POST /agent/chat)
+        ↓  (indicateur de frappe)
+Backend Express + Groq Function Calling
+        ↓  (exécution du tool sélectionné)
+Réponse structurée (JSON)
+        ↓
+Rendu Markdown dynamique
 ```
 
-> Note technique : dans la version actuelle, le backend attend la réponse complète du modèle avant de la retransmettre progressivement (mot par mot) au client. Ce n'est pas encore un streaming token-par-token relayé en direct depuis le modèle IA — une évolution possible consiste à activer le streaming natif de l'API IA et à relayer les chunks au fil de l'eau.
-
-Le chat peut afficher :
-
-- La réponse progressivement
-- Un indicateur de génération
-- Les erreurs éventuelles
 
 ---
 
@@ -521,17 +517,30 @@ BizPulse/
 │   └── package-lock.json
 │
 ├── mobile/
+
 │   ├── app/
-│   │   ├── _layout.tsx
-│   │   ├── index.tsx
-│   │   ├── login.tsx
-│   │   ├── register.tsx
-│   │   ├── transactions.tsx
-│   │   └── chat.tsx
+│   │   ├── _layout.js
+│   │   ├── index.js
+│   │   ├── login.js
+│   │   ├── register.js
+│   │   ├── dashboard.js
+│   │   ├── transactions.js
+│   │   ├── transaction-form.js
+│   │   ├── profile.js
+│   │   └── chat.js
 │   │
 │   ├── components/
+│   │   ├── BottomNav.js
+│   │   ├── Button.js
+│   │   ├── Card.js
+│   │   ├── Input.js
+│   │   └── TransactionItem.js
+│   ├── constants/
+│   │   └── colors.js
 │   ├── services/
+│   │   └── api.js
 │   ├── store/
+│   │   └── authStore.js
 │   ├── assets/
 │   └── app.json
 │
@@ -539,8 +548,73 @@ BizPulse/
 │   ├── use-case.mermaid
 │   ├── class-diagram.mermaid
 │   ├── architecture.mermaid
-│   ├── ai-sequence.mermaid
-│   └── BizPulse.postman_collection.json
+│   └── ai-sequence.mermaid
+│
+├── docker-compose.yml
+├── README.md
+└── .gitignore
+```
+
+---
+
+# 📱 Écrans de l'application
+
+L'application mobile repose sur 8 routes Expo Router :
+
+## 1. Splash (`index.js`)
+Lancement de l'application, lecture de la vidéo d'introduction avec transition automatique sécurisée, et redirection selon l'état d'authentification.
+
+## 2. Connexion (`login.js`)
+Authentification par email et mot de passe, récupération du couple `accessToken` / `refreshToken`.
+
+## 3. Inscription (`register.js`)
+Création de compte avec nom d'entreprise, email, mot de passe et secteur d'activité.
+
+## 4. Tableau de bord (`dashboard.js`)
+Vue synthétique : total des revenus, total des dépenses, solde estimé, top 5 des dépenses par catégorie (fourni directement par le serveur) et graphique d'évolution sur les derniers mois.
+
+## 5. Transactions (`transactions.js`)
+Historique complet des opérations, filtrage par type (toutes, revenus, dépenses), pagination avec chargement continu ("Charger plus") et bouton d'action flottant.
+
+## 6. Formulaire de transaction (`transaction-form.js`)
+Ajout et modification d'une transaction avec sélection de la catégorie, montant et date locale (avec calendrier natif). Option de suppression en mode modification.
+
+## 7. Profil (`profile.js`)
+Consultation et édition des informations de l'entreprise (nom, email, secteur, à propos, gérant) et déconnexion sécurisée.
+
+## 8. Chat IA (`chat.js`)
+Dialogue financier avec l'assistant IA : suggestions rapides, indicateur de frappe, réponses enrichies en Markdown, défilement automatique et historique horodaté des échanges.
+
+---
+
+# 🗄️ Modèle de données
+
+Le projet utilise cinq entités principales.
+
+```text
+Entreprise
+   │
+   ├── Transaction
+   │
+   ├── Conversation
+   │       │
+   │       └── Message
+   │
+   └── AgentLog
+```
+
+## Entreprise
+
+```text
+id
+nom
+email
+motDePasseHash
+secteur
+about
+owner
+```
+json
 │
 ├── docker-compose.yml
 ├── prompts-journal.md
@@ -691,23 +765,27 @@ Conversation 1 ─── 0..* Message
 
 ```http
 POST /api/auth/register
-
 POST /api/auth/login
-
 POST /api/auth/logout
-
 POST /api/auth/refresh
+PUT  /api/auth/profile
+```
+
+### Format d'erreur standardisé
+Toutes les validations (Zod) et erreurs du serveur retournent un format unique compréhensible par le mobile :
+```json
+{
+  "error": "Message lisible en français",
+  "errors": [ /* détails de validation optionnels */ ]
+}
 ```
 
 ## Transactions
 
 ```http
 GET    /api/transactions
-
 POST   /api/transactions
-
 PUT    /api/transactions/:id
-
 DELETE /api/transactions/:id
 ```
 
@@ -729,9 +807,20 @@ Exemple de réponse :
 {
   "revenus": 40000,
   "depenses": 28000,
-  "solde": 12000
+  "solde": 12000,
+  "parCategorie": {
+    "Loyer": 15000,
+    "Salaires": 10000,
+    "Transport": 3000
+  },
+  "evolution": {
+    "labels": ["2026-08", "2026-09", "2026-10"],
+    "revenus": [35000, 38000, 40000],
+    "depenses": [25000, 27000, 28000]
+  }
 }
 ```
+
 
 ## Assistant IA
 
@@ -819,6 +908,7 @@ Cette opération ne modifie aucune donnée dans PostgreSQL.
 ```bash
 cd backend
 
+
 npm install
 
 cp .env.example .env
@@ -826,17 +916,33 @@ cp .env.example .env
 npm run dev
 ```
 
+> **Sans Docker** : mettre `DB_HOST=localhost` dans `.env` et avoir une instance PostgreSQL locale en écoute sur le port 5432.
+> **Avec Docker** : mettre `DB_HOST=db` (ou utiliser Docker Compose directement).
+
 ---
 
 ## Mobile
 
+### Sur Émulateur / Simulateur
 ```bash
 cd mobile
 
 npm install
 
-npx expo start
+npx expo start -c
 ```
+- Appuyer sur `a` pour lancer sur l'émulateur Android (utilise `http://10.0.2.2:5000/api`).
+- Appuyer sur `i` pour lancer sur le simulateur iOS (utilise `http://localhost:5000/api`).
+
+### Sur un vrai téléphone (via Expo Go)
+1. Connecter le téléphone et l'ordinateur au **même réseau Wi-Fi**.
+2. Trouver l'adresse IP locale de l'ordinateur (ex: commande `ipconfig` sur Windows -> IPv4, ex: `192.168.1.50`).
+3. Créer le fichier `mobile/.env` (à partir de `mobile/.env.example`) :
+   ```env
+   EXPO_PUBLIC_API_URL=http://<IP-de-ton-PC>:5000/api
+   ```
+4. Vérifier que le port 5000 n'est pas bloqué par le pare-feu Windows.
+5. Lancer Expo avec le cache vidé : `npx expo start -c` et scanner le QR code dans l'application Expo Go.
 
 ---
 
@@ -899,10 +1005,10 @@ Vérification :
 GET http://localhost:5000/api/health
 ```
 
-Documentation Swagger :
+Documentation de l'API (Scalar / OpenAPI) :
 
 ```text
-http://localhost:5000/api/docs
+http://localhost:5000/api/scalar
 ```
 
 Arrêt :
@@ -919,40 +1025,29 @@ docker compose down -v
 
 ---
 
-# 📚 Documentation API
+# 📚 Documentation API (Scalar / OpenAPI)
 
-L'API est documentée avec Swagger / OpenAPI. Une fois le backend lancé, la documentation interactive est disponible sur :
+L'API est documentée selon la spécification OpenAPI (`backend/src/config/openapi.js`). Une fois le backend lancé, l'interface interactive moderne Scalar est accessible sur :
 
 ```text
-http://localhost:5000/api/docs
+http://localhost:5000/api/scalar
 ```
 
-Une collection Postman prête à l'emploi est fournie dans `docs/BizPulse.postman_collection.json`. Le token obtenu au login est enregistré automatiquement dans la collection.
+Elle permet de tester directement toutes les routes documentées :
+- `/api/health`
+- Authentification : `/api/auth/register`, `/api/auth/login`, `/api/auth/refresh`, `/api/auth/logout`, `/api/auth/profile`
+- Transactions : CRUD complet sur `/api/transactions` avec filtres, tri et pagination
+- Dashboard : `/api/dashboard/summary` (synthèse, répartition par catégorie, évolution)
+- Assistant IA : `/api/agent/chat`, `/api/agent/chat/stream`, `/api/agent/conversations`
 
-Les tests permettront notamment de vérifier :
-
-- Register
-- Login
-- Routes protégées
-- CRUD des transactions
-- Dashboard
-- Endpoints de l'assistant IA
-
-> À ce stade du MVP, ces vérifications sont manuelles (Postman) ; aucune suite de tests automatisés n'est encore en place.
 
 ---
 
 # 📝 Vibe Coding & Prompt Journal
 
-Le développement de BizPulse utilise une démarche de vibe coding documentée.
+Le développement de BizPulse s'inscrit dans une démarche de vibe coding documentée.
 
-Le fichier :
-
-```text
-prompts-journal.md
-```
-
-permet de conserver :
+Le fichier `prompts-journal.md` (journal de bord personnel de formation à compléter par l'étudiante pour la soutenance) permet de consigner :
 
 - Les prompts utilisés
 - L'objectif du prompt
@@ -960,6 +1055,7 @@ permet de conserver :
 - Les problèmes rencontrés
 - Les corrections apportées
 - Les choix techniques
+
 
 Exemple :
 

@@ -1,8 +1,17 @@
 import { useState } from "react";
 import { StyleSheet, Text, TextInput, View, Pressable } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import colors from "../constants/colors";
 
-export default function Input({ label, value, onChangeText, placeholder, secure = false, keyboardType = "default" }) {
+export default function Input({
+  label,
+  value,
+  onChangeText,
+  placeholder,
+  secure = false,
+  keyboardType = "default",
+  autoCapitalize = "sentences"
+}) {
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
   const isSecureInput = secure && !isPasswordVisible;
 
@@ -14,10 +23,10 @@ export default function Input({ label, value, onChangeText, placeholder, secure 
           value={value}
           onChangeText={onChangeText}
           placeholder={placeholder}
-          placeholderTextColor="#77736D"
+          placeholderTextColor={colors.textMuted}
           secureTextEntry={isSecureInput}
           keyboardType={keyboardType}
-          autoCapitalize="none"
+          autoCapitalize={autoCapitalize}
           style={styles.input}
         />
         {secure && (
@@ -25,11 +34,12 @@ export default function Input({ label, value, onChangeText, placeholder, secure 
             style={styles.eyeIcon}
             onPress={() => setIsPasswordVisible(!isPasswordVisible)}
             hitSlop={10}
+            accessibilityLabel={isPasswordVisible ? "Masquer le mot de passe" : "Afficher le mot de passe"}
           >
             <Ionicons
               name={isPasswordVisible ? "eye-off-outline" : "eye-outline"}
               size={20}
-              color="#77736D"
+              color={colors.textMuted}
             />
           </Pressable>
         )}
@@ -40,25 +50,25 @@ export default function Input({ label, value, onChangeText, placeholder, secure 
 
 const styles = StyleSheet.create({
   wrapper: { marginBottom: 12 },
-  label: { color: "#2D2B2F", fontSize: 12, fontWeight: "600", marginBottom: 6 },
+  label: { color: colors.text, fontSize: 12, fontWeight: "600", marginBottom: 6 },
   inputContainer: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#FFFFFF",
+    backgroundColor: colors.card,
     borderWidth: 1,
-    borderColor: "#E8E2DA",
-    borderRadius: 12,
+    borderColor: colors.border,
+    borderRadius: 12
   },
   input: {
     flex: 1,
     height: 52,
     paddingHorizontal: 14,
-    color: "#2D2B2F",
-    fontSize: 14,
+    color: colors.text,
+    fontSize: 14
   },
   eyeIcon: {
     paddingHorizontal: 14,
     justifyContent: "center",
-    alignItems: "center",
+    alignItems: "center"
   }
 });

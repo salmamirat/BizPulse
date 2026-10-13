@@ -6,6 +6,7 @@ import Input from "../components/Input";
 import Button from "../components/Button";
 import useAuthStore from "../store/authStore";
 import { login } from "../services/api";
+import colors from "../constants/colors";
 
 export default function Login() {
   const router = useRouter();
@@ -46,14 +47,28 @@ export default function Login() {
     <KeyboardAvoidingView style={styles.screen} behavior={Platform.OS === "ios" ? "padding" : undefined}>
       <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
         <View style={styles.topSpace} />
-        
+
         <Image source={require('../assets/logo.svg')} style={styles.logoImage} contentFit="contain" />
         <Text style={styles.title}>Connexion</Text>
         <Text style={styles.subtitle}>Connectez-vous pour gérer votre activité.</Text>
-        
+
         <View style={styles.form}>
-          <Input label="Email" value={email} onChangeText={setEmail} placeholder="contact@entreprise.ma" keyboardType="email-address" />
-          <Input label="Mot de passe" value={motDePasse} onChangeText={setMotDePasse} placeholder="••••••••" secure />
+          <Input
+            label="Email"
+            value={email}
+            onChangeText={setEmail}
+            placeholder="contact@entreprise.ma"
+            keyboardType="email-address"
+            autoCapitalize="none"
+          />
+          <Input
+            label="Mot de passe"
+            value={motDePasse}
+            onChangeText={setMotDePasse}
+            placeholder="••••••••"
+            secure
+            autoCapitalize="none"
+          />
           <Button title={loading ? "Connexion..." : "Se connecter"} onPress={handleLogin} disabled={loading} />
         </View>
 
@@ -66,13 +81,13 @@ export default function Login() {
 }
 
 const styles = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: "#FAF7F5" },
+  screen: { flex: 1, backgroundColor: colors.background },
   content: { flexGrow: 1, paddingTop: 60, paddingHorizontal: 20, paddingBottom: 30 },
-  topSpace: { height: 40 }, // to roughly match register's top bar height
+  topSpace: { height: 40 },
   logoImage: { height: 80, width: 280, alignSelf: "center", marginBottom: 24 },
-  title: { color: "#2D2B2F", fontSize: 22, fontWeight: "800" },
-  subtitle: { color: "#77736D", fontSize: 12, lineHeight: 18, marginTop: 5, marginBottom: 20 },
+  title: { color: colors.text, fontSize: 22, fontWeight: "800" },
+  subtitle: { color: colors.textMuted, fontSize: 13, lineHeight: 18, marginTop: 5, marginBottom: 20 },
   form: { width: "100%" },
-  registerText: { textAlign: "center", color: "#77736D", fontSize: 12, marginTop: 15 },
-  link: { color: "#6D1B3B", fontWeight: "700" }
+  registerText: { textAlign: "center", color: colors.textMuted, fontSize: 13, marginTop: 15 },
+  link: { color: colors.primary, fontWeight: "700" }
 });

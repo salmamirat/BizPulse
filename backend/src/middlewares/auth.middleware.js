@@ -6,8 +6,9 @@ function authMiddleware(req, res, next) {
   if (!authHeader) {
     return res.status(401).json({ error: "Token manquant" });
   }
-// Bearer sd/.mjsdlk'vnvfl;kkvndf;ln dkl;nvfl;dnvdfkl => ["Bearer","sd/.mjsdlk'vnvfl;kkvndf;ln dkl;nvfl;dnvdfkl"]
+  // Format : Bearer <token>
   const token = authHeader.split(" ")[1];
+
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);

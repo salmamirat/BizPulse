@@ -5,12 +5,11 @@ import { Link, useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import Input from "../components/Input";
 import Button from "../components/Button";
-import useAuthStore from "../store/authStore";
 import { register } from "../services/api";
+import colors from "../constants/colors";
 
 export default function Register() {
   const router = useRouter();
-  const saveProfile = useAuthStore((state) => state.saveProfile);
   const [nom, setNom] = useState("");
   const [email, setEmail] = useState("");
   const [motDePasse, setMotDePasse] = useState("");
@@ -22,7 +21,7 @@ export default function Register() {
       Alert.alert("Inscription", "Veuillez remplir les champs obligatoires.");
       return;
     }
-    
+
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email.trim())) {
       Alert.alert("Inscription", "Veuillez entrer une adresse email valide.");
@@ -36,8 +35,7 @@ export default function Register() {
 
     try {
       setLoading(true);
-      const data = await register(nom.trim(), email.trim(), motDePasse, secteur.trim() || undefined);
-      await saveProfile({ nom: data.nom, email: data.email, secteur: secteur.trim() });
+      await register(nom.trim(), email.trim(), motDePasse, secteur.trim() || undefined);
       Alert.alert("Compte créé", "Votre compte a été créé. Vous pouvez maintenant vous connecter.");
       router.replace("/login");
     } catch (error) {
@@ -51,11 +49,11 @@ export default function Register() {
     <KeyboardAvoidingView style={styles.screen} behavior={Platform.OS === "ios" ? "padding" : undefined}>
       <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
         <View style={styles.top}>
-          <Pressable onPress={() => router.replace("/login")} hitSlop={12}>
-            <Ionicons name="arrow-back" size={19} color="#2D2B2F" />
+          <Pressable onPress={() => router.replace("/login")} hitSlop={12} accessibilityLabel="Retour à la connexion">
+            <Ionicons name="arrow-back" size={20} color={colors.text} />
           </Pressable>
           <View style={styles.secureRow}>
-            <Ionicons name="shield-checkmark-outline" size={13} color="#6D1B3B" />
+            <Ionicons name="shield-checkmark-outline" size={15} color={colors.primary} />
             <Text style={styles.secure}>Données sécurisées</Text>
           </View>
         </View>
@@ -64,30 +62,28 @@ export default function Register() {
         <Text style={styles.title}>Créer un compte</Text>
         <Text style={styles.subtitle}>Commencez la gestion claire et sereine de votre activité.</Text>
 
-        <Input label="Nom de l'entreprise" value={nom} onChangeText={setNom} placeholder="Ex: Atlas Tech SARL" />
-        <Input label="Email" value={email} onChangeText={setEmail} placeholder="contact@atlastech.ma" keyboardType="email-address" />
-        <Input label="Mot de passe (6 caractères min)" value={motDePasse} onChangeText={setMotDePasse} placeholder="Au moins 6 caractères" secure />
-        <Input label="Secteur d'activité (optionnel)" value={secteur} onChangeText={setSecteur} placeholder="Ex: Commerce, Services..." />
+        <Input label="Nom de l'entreprise" value={nom} onChangeText={setNom} placeholder="Ex: Atlas Tech SARL" autoCapitalize="words" />
+        <Input label="Email" value={email} onChangeText={setEmail} placeholder="contact@atlastech.ma" keyboardType="email-address" autoCapitalize="none" />
+        <Input label="Mot de passe (6 caractères min)" value={motDePasse} onChangeText={setMotDePasse} placeholder="Au moins 6 caractères" secure autoCapitalize="none" />
+        <Input label="Secteur d'activité (optionnel)" value={secteur} onChangeText={setSecteur} placeholder="Ex: Commerce, Services..." autoCapitalize="words" />
 
         <Button title={loading ? "Création..." : "Créer mon compte"} onPress={handleRegister} disabled={loading} />
 
         <Text style={styles.loginText}>Déjà un compte ? <Link href="/login" style={styles.link}>Se connecter</Link></Text>
-        <Text style={styles.legal}>En continuant, vous acceptez les conditions d'utilisation et la politique de confidentialité.</Text>
       </ScrollView>
     </KeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: "#FAF7F5" },
+  screen: { flex: 1, backgroundColor: colors.background },
   content: { flexGrow: 1, paddingTop: 60, paddingHorizontal: 20, paddingBottom: 30 },
   top: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginBottom: 20 },
   secureRow: { flexDirection: "row", alignItems: "center", gap: 5 },
-  secure: { color: "#6D1B3B", fontSize: 10, fontWeight: "700" },
+  secure: { color: colors.primary, fontSize: 12, fontWeight: "700" },
   logoImage: { height: 80, width: 280, alignSelf: "center", marginBottom: 24 },
-  title: { color: "#2D2B2F", fontSize: 22, fontWeight: "800" },
-  subtitle: { color: "#77736D", fontSize: 12, lineHeight: 18, marginTop: 5, marginBottom: 20 },
-  loginText: { textAlign: "center", color: "#77736D", fontSize: 12, marginTop: 15 },
-  link: { color: "#6D1B3B", fontWeight: "700" },
-  legal: { textAlign: "center", color: "#77736D", fontSize: 9, lineHeight: 13, marginTop: 14 }
+  title: { color: colors.text, fontSize: 22, fontWeight: "800" },
+  subtitle: { color: colors.textMuted, fontSize: 13, lineHeight: 18, marginTop: 5, marginBottom: 20 },
+  loginText: { textAlign: "center", color: colors.textMuted, fontSize: 13, marginTop: 15 },
+  link: { color: colors.primary, fontWeight: "700" }
 });

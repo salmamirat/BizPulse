@@ -1,26 +1,26 @@
 import { Transaction } from "../models/index.js";
+import { getFinancialSummary, getExpensesByCategory } from "../ai/tools.js";
 
 async function getSummary(req, res) {
-  const transactions = await Transaction.findAll({
-    where: { entrepriseId: req.entrepriseId }
-  });
+  const [financialSummary, expensesByCategory, transactions] = await Promise.all([
+    getFinancialSummary(req.entrepriseId, "tout"),
+    getExpensesByCategory(req.entrepriseId, "tout"),
+    Transaction.findAll({
+      where: { entrepriseId: req.entrepriseId },
+      attributes: ["type", "montant", "date", "createdAt"]
+    })
+  ]);
 
-  let revenus = 0;
-  let depenses = 0;
+  const { revenus, depenses, solde } = financialSummary;
+  const parCategorie = expensesByCategory.parCategorie;
+
   const evolutionMap = {};
 
   transactions.forEach((t) => {
     const montant = Number(t.montant);
-    if (t.type === "revenu") {
-      revenus += montant;
-    } else {
-      depenses += montant;
-    }
+    // Déduire le mois avec t.date.slice(0, 7) (type DATEONLY YYYY-MM-DD)
+    const month = t.date ? String(t.date).slice(0, 7) : new Date(t.createdAt).toISOString().slice(0, 7);
 
-    // Grouper par mois en utilisant la colonne 'date' (ex: "2026-10")
-    const dateObj = t.date ? new Date(t.date) : new Date(t.createdAt);
-    const month = `${dateObj.getFullYear()}-${String(dateObj.getMonth() + 1).padStart(2, "0")}`;
-    
     if (!evolutionMap[month]) {
       evolutionMap[month] = { revenu: 0, depense: 0 };
     }
@@ -43,9 +43,11 @@ async function getSummary(req, res) {
   res.json({
     revenus,
     depenses,
-    solde: revenus - depenses,
+    solde,
+    parCategorie,
     evolution
   });
 }
 
 export default { getSummary };
+

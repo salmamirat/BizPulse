@@ -7,13 +7,16 @@ const groq = new OpenAI({
   baseURL: process.env.AI_BASE_URL
 });
 
+const FALLBACK_REPLY = "Je n'ai pas pu produire de réponse, reformulez votre question.";
+
 async function askAgent(userMessage, entrepriseId, history = []) {
   const today = new Date().toISOString().slice(0, 10);
 
   const messages = [
     {
       role: "system",
-content: `${systemPrompt}\nDate d'aujourd'hui : ${today}. Utilise toujours le paramètre "periode" des fonctions : "ce_mois", "mois_dernier" ou "tout".`    },
+      content: `${systemPrompt}\nDate d'aujourd'hui : ${today}. Utilise toujours le paramètre "periode" des fonctions : "ce_mois", "mois_dernier" ou "tout".`
+    },
     ...history,
     { role: "user", content: userMessage }
   ];
@@ -30,17 +33,23 @@ content: `${systemPrompt}\nDate d'aujourd'hui : ${today}. Utilise toujours le pa
 
   if (!toolCall) {
     return {
-      reply: responseMessage.content,
+      reply: responseMessage.content?.trim() || FALLBACK_REPLY,
       functionCalled: null,
       functionParams: null
     };
   }
 
   const functionName = toolCall.function.name;
-  const args = JSON.parse(toolCall.function.arguments || "{}");
+  let args = {};
+  try {
+    args = JSON.parse(toolCall.function.arguments || "{}");
+  } catch {
+    args = {};
+  }
 
   const functionResult = await tools.executeFunctionByName(functionName, args, entrepriseId);
 
+  // Second appel sans tools ni tool_choice pour contraindre le modèle à répondre en texte
   const secondResponse = await groq.chat.completions.create({
     model: process.env.AI_MODEL,
     messages: [
@@ -55,16 +64,16 @@ content: `${systemPrompt}\nDate d'aujourd'hui : ${today}. Utilise toujours le pa
         tool_call_id: toolCall.id,
         content: JSON.stringify(functionResult)
       }
-    ],
-    tools: tools.toolsSchema,
-    tool_choice: "auto"
+    ]
   });
 
+  const finalReply = secondResponse.choices[0]?.message?.content?.trim();
+
   return {
-    reply: secondResponse.choices[0].message.content,
+    reply: finalReply || FALLBACK_REPLY,
     functionCalled: functionName,
     functionParams: args
   };
 }
 
-export default askAgent;
+export default askAgent;

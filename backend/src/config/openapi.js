@@ -77,6 +77,28 @@ const swaggerDocument = {
         responses: { 200: { description: "Déconnexion réussie" } }
       }
     },
+    "/api/auth/profile": {
+      put: {
+        tags: ["Auth"],
+        summary: "Mettre à jour le profil de l'entreprise",
+        security: bearer,
+        requestBody: json(
+          {
+            nom: { type: "string", example: "Ma Nouvelle Societe" },
+            email: { type: "string", example: "contact@entreprise.ma" },
+            secteur: { type: "string", example: "Services" },
+            about: { type: "string", example: "Description de l'activité" },
+            owner: { type: "string", example: "Salma" }
+          },
+          ["nom", "email"]
+        ),
+        responses: {
+          200: { description: "Profil mis à jour (id, nom, email, secteur, about, owner)" },
+          400: { description: "Données invalides ou email déjà utilisé (format { error, errors })" },
+          401: { description: "Non autorisé" }
+        }
+      }
+    },
     "/api/transactions": {
       get: {
         tags: ["Transactions"],
@@ -98,12 +120,12 @@ const swaggerDocument = {
           {
             type: { type: "string", enum: ["revenu", "depense"] },
             montant: { type: "number", example: 5000 },
-            categorie: { type: "string", example: "Vente" },
+            categorie: { type: "string", example: "Ventes" },
             date: { type: "string", example: "2026-09-26" }
           },
           ["type", "montant", "categorie", "date"]
         ),
-        responses: { 201: { description: "Transaction créée" }, 400: { description: "Données invalides" } }
+        responses: { 201: { description: "Transaction créée" }, 400: { description: "Données invalides (format { error, errors })" } }
       }
     },
     "/api/transactions/{id}": {
@@ -128,9 +150,14 @@ const swaggerDocument = {
         tags: ["Dashboard"],
         summary: "Résumé financier",
         security: bearer,
-        responses: { 200: { description: "revenus, depenses, solde" } }
+        responses: {
+          200: {
+            description: "Synthèse financière : revenus, depenses, solde, parCategorie et evolution"
+          }
+        }
       }
     },
+
     "/api/agent/chat": {
       post: {
         tags: ["Agent IA"],

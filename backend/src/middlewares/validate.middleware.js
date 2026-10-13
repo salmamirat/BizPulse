@@ -3,7 +3,12 @@ function validate(schema) {
     const result = schema.safeParse(req.body);
 
     if (!result.success) {
-      return res.status(400).json({ errors: result.error.issues });
+      const firstIssue = result.error.issues[0];
+      const errorMessage = firstIssue?.message || "Données invalides";
+      return res.status(400).json({
+        error: errorMessage,
+        errors: result.error.issues
+      });
     }
 
     req.body = result.data;
@@ -12,3 +17,4 @@ function validate(schema) {
 }
 
 export default validate;
+

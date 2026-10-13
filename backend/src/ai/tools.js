@@ -94,13 +94,18 @@ async function getExpensesByCategory(entrepriseId, periode = "tout") {
 }
 
 async function simulateNewHire(entrepriseId, salaire) {
+  const numSalaire = Number(salaire);
+  if (!Number.isFinite(numSalaire) || numSalaire <= 0) {
+    return { error: "Le montant du salaire doit être un nombre positif valide." };
+  }
+
   const summary = await getFinancialSummary(entrepriseId, "tout");
 
   return {
     devise: "DH",
     soldeActuel: summary.solde,
-    salaireSimule: salaire,
-    soldeEstime: summary.solde - salaire
+    salaireSimule: numSalaire,
+    soldeEstime: summary.solde - numSalaire
   };
 }
 
@@ -170,4 +175,5 @@ async function executeFunctionByName(name, args, entrepriseId) {
   return { error: "Fonction inconnue" };
 }
 
-export default { toolsSchema, executeFunctionByName };
+export { getFinancialSummary, getExpensesByCategory, simulateNewHire, toolsSchema, executeFunctionByName };
+export default { getFinancialSummary, getExpensesByCategory, simulateNewHire, toolsSchema, executeFunctionByName };

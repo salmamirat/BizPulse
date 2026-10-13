@@ -1,6 +1,8 @@
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { usePathname, useRouter } from "expo-router";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import colors from "../constants/colors";
 
 const items = [
   ["dashboard", "Accueil", "home-outline", "home"],
@@ -12,14 +14,21 @@ const items = [
 export default function BottomNav() {
   const router = useRouter();
   const pathname = usePathname();
+  const insets = useSafeAreaInsets();
 
   return (
-    <View style={styles.nav}>
+    <View style={[styles.nav, { paddingBottom: Math.max(insets.bottom, 6), height: 60 + Math.max(insets.bottom, 6) }]}>
       {items.map(([route, label, icon, activeIcon]) => {
         const active = pathname.includes(route);
         return (
-          <Pressable key={route} onPress={() => router.replace(`/${route}`)} style={styles.item}>
-            <Ionicons name={active ? activeIcon : icon} size={18} color={active ? "#6D1B3B" : "#77736D"} />
+          <Pressable
+            key={route}
+            onPress={() => router.replace(`/${route}`)}
+            style={styles.item}
+            accessibilityLabel={`Onglet ${label}`}
+            accessibilityRole="tab"
+          >
+            <Ionicons name={active ? activeIcon : icon} size={20} color={active ? colors.primary : colors.textMuted} />
             <Text style={[styles.label, active && styles.active]}>{label}</Text>
           </Pressable>
         );
@@ -30,14 +39,13 @@ export default function BottomNav() {
 
 const styles = StyleSheet.create({
   nav: {
-    height: 66,
     flexDirection: "row",
-    backgroundColor: "#FFFFFF",
+    backgroundColor: colors.card,
     borderTopWidth: 1,
-    borderTopColor: "#E8E2DA",
-    paddingBottom: 5
+    borderTopColor: colors.border,
+    paddingTop: 6
   },
   item: { flex: 1, alignItems: "center", justifyContent: "center" },
-  label: { color: "#77736D", fontSize: 9, marginTop: 4 },
-  active: { color: "#6D1B3B", fontWeight: "700" }
+  label: { color: colors.textMuted, fontSize: 12, marginTop: 3 },
+  active: { color: colors.primary, fontWeight: "700" }
 });

@@ -51,10 +51,12 @@ async function runChat(req, res) {
     return null;
   }
 
+  const replyText = result.reply || "Je n'ai pas pu produire de réponse, reformulez votre question.";
+
   await Message.create({
     conversationId: conversation.id,
     role: "assistant",
-    contenu: result.reply
+    contenu: replyText
   });
 
   await AgentLog.create({
@@ -62,10 +64,10 @@ async function runChat(req, res) {
     userMessage: message,
     functionCalled: result.functionCalled,
     functionParams: result.functionParams,
-    assistantReply: result.reply
+    assistantReply: replyText
   });
 
-  return { conversation, result };
+  return { conversation, result: { ...result, reply: replyText } };
 }
 
 async function chat(req, res) {
@@ -94,16 +96,18 @@ async function chatStream(req, res) {
 
   res.write(`event: conversation\ndata: ${data.conversation.id}\n\n`);
 
-  const words = data.result.reply.split(" ");
+  // Découper en préservant espaces et retours à la ligne Markdown, encodé en JSON
+  const chunks = data.result.reply.match(/\S+|\s+/g) || [data.result.reply];
 
-  for (const word of words) {
-    res.write(`data: ${word}\n\n`);
-    await new Promise((resolve) => setTimeout(resolve, 50));
+  for (const chunk of chunks) {
+    res.write(`data: ${JSON.stringify(chunk)}\n\n`);
+    await new Promise((resolve) => setTimeout(resolve, 30));
   }
 
   res.write("data: [DONE]\n\n");
   res.end();
 }
+
 
 async function getConversations(req, res) {
   const conversations = await Conversation.findAll({
