@@ -1,6 +1,6 @@
 classDiagram
   class Entreprise {
-    +UUID id
+    +UUID id (PK)
     +string nom
     +string email
     +string motDePasseHash
@@ -11,8 +11,8 @@ classDiagram
 
 
   class Transaction {
-    +UUID id
-    +UUID entrepriseId
+    +UUID id (PK)
+    +UUID entrepriseId (FK)
     +enum type
     +decimal montant
     +string categorie
@@ -20,22 +20,22 @@ classDiagram
   }
 
   class Conversation {
-    +UUID id
-    +UUID entrepriseId
+    +UUID id (PK)
+    +UUID entrepriseId (FK)
     +datetime createdAt
   }
 
   class Message {
-    +UUID id
-    +UUID conversationId
+    +UUID id (PK)
+    +UUID conversationId (FK)
     +enum role
     +text contenu
     +datetime createdAt
   }
 
   class AgentLog {
-    +UUID id
-    +UUID entrepriseId
+    +UUID id (PK)
+    +UUID entrepriseId (FK)
     +text userMessage
     +string functionCalled
     +json functionParams

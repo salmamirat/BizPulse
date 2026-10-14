@@ -2,14 +2,25 @@ import OpenAI from "openai";
 import systemPrompt from "./systemPrompt.js";
 import tools from "./tools.js";
 
-const groq = new OpenAI({
-  apiKey: process.env.AI_API_KEY,
-  baseURL: process.env.AI_BASE_URL
-});
+let groq = null;
+
+function getClient() {
+  if (!process.env.AI_API_KEY) {
+    throw new Error("AI_API_KEY non configurée");
+  }
+  if (!groq) {
+    groq = new OpenAI({
+      apiKey: process.env.AI_API_KEY,
+      baseURL: process.env.AI_BASE_URL
+    });
+  }
+  return groq;
+}
 
 const FALLBACK_REPLY = "Je n'ai pas pu produire de réponse, reformulez votre question.";
 
 async function askAgent(userMessage, entrepriseId, history = []) {
+  const client = getClient();
   const today = new Date().toISOString().slice(0, 10);
 
   const messages = [
@@ -21,7 +32,7 @@ async function askAgent(userMessage, entrepriseId, history = []) {
     { role: "user", content: userMessage }
   ];
 
-  const firstResponse = await groq.chat.completions.create({
+  const firstResponse = await client.chat.completions.create({
     model: process.env.AI_MODEL,
     messages,
     tools: tools.toolsSchema,
@@ -50,7 +61,7 @@ async function askAgent(userMessage, entrepriseId, history = []) {
   const functionResult = await tools.executeFunctionByName(functionName, args, entrepriseId);
 
   // Second appel sans tools ni tool_choice pour contraindre le modèle à répondre en texte
-  const secondResponse = await groq.chat.completions.create({
+  const secondResponse = await client.chat.completions.create({
     model: process.env.AI_MODEL,
     messages: [
       ...messages,

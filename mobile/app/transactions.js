@@ -17,16 +17,23 @@ export default function Transactions() {
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
+  const [error, setError] = useState(false);
 
   const load = useCallback(async (nextPage = 1, append = false) => {
     try {
-      if (!append) setLoading(true);
+      if (!append) {
+        setLoading(true);
+        setError(false);
+      }
       const data = await getTransactions({ page: nextPage, limit: 10, ...(type ? { type } : {}), sort: "date" });
       setItems((old) => append ? [...old, ...(data.data || [])] : (data.data || []));
       setPage(nextPage);
       setTotal(data.total || 0);
+      setError(false);
     } catch {
-      if (!append) setItems([]);
+      if (!append) {
+        setError(true);
+      }
     } finally {
       setLoading(false);
       setLoadingMore(false);
@@ -70,7 +77,19 @@ export default function Transactions() {
 
           <Card style={styles.listCard}>
             {loading && items.length === 0 ? (
-              <ActivityIndicator color={colors.primary} style={{ paddingVertical: 24 }} />
+               <ActivityIndicator color={colors.primary} style={{ paddingVertical: 24 }} />
+            ) : error && items.length === 0 ? (
+              <View style={styles.errorBox}>
+                <Text style={styles.errorText}>Impossible de charger les transactions.</Text>
+                <Pressable
+                  onPress={() => load(1, false)}
+                  style={styles.retryButton}
+                  accessibilityRole="button"
+                  accessibilityLabel="Réessayer"
+                >
+                  <Text style={styles.retryText}>Réessayer</Text>
+                </Pressable>
+              </View>
             ) : items.length === 0 ? (
               <Text style={styles.empty}>Aucune transaction.</Text>
             ) : (
@@ -138,6 +157,10 @@ const styles = StyleSheet.create({
   activeTabText: { color: colors.text, fontWeight: "700" },
   listCard: { paddingVertical: 4 },
   empty: { color: colors.textMuted, textAlign: "center", paddingVertical: 24, fontSize: 14 },
+  errorBox: { alignItems: "center", justifyContent: "center", paddingVertical: 24, gap: 10 },
+  errorText: { color: colors.textMuted, fontSize: 14, textAlign: "center" },
+  retryButton: { paddingHorizontal: 16, paddingVertical: 8, backgroundColor: colors.primaryLight, borderRadius: 8 },
+  retryText: { color: colors.primary, fontSize: 14, fontWeight: "700" },
   more: { height: 44, backgroundColor: "#FFFFFF", borderWidth: 1, borderColor: colors.border, borderRadius: 12, alignItems: "center", justifyContent: "center" },
   moreText: { color: colors.text, fontSize: 14, fontWeight: "700" },
   floating: {

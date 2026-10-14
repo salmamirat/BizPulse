@@ -1,7 +1,7 @@
 flowchart TD
   Mobile[Application Mobile<br/>React Native / Expo]
 
-  Mobile -->|Axios / SSE| Backend[Backend Express]
+  Mobile -->|Axios / HTTP| Backend[Backend Express]
 
   subgraph Backend Node.js
     Auth[Authentification<br/>JWT / bcrypt]

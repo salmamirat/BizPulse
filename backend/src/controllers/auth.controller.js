@@ -75,7 +75,7 @@ async function login(req, res) {
 }
 
 async function refresh(req, res) {
-  const { refreshToken } = req.body;
+  const refreshToken = req.body?.refreshToken;
 
   if (!refreshToken) {
     return res.status(401).json({ error: "Refresh token manquant" });

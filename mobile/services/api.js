@@ -131,10 +131,14 @@ export async function getMessages(id) {
 }
 
 export async function sendMessage(message, conversationId) {
-  const { data } = await api.post("/agent/chat", {
-    message,
-    ...(conversationId ? { conversationId } : {})
-  });
+  const { data } = await api.post(
+    "/agent/chat",
+    {
+      message,
+      ...(conversationId ? { conversationId } : {})
+    },
+    { timeout: 60000 }
+  );
   return data;
 }
 

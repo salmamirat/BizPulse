@@ -74,7 +74,7 @@ L'utilisateur peut :
 - Modifier une transaction
 - Supprimer une transaction
 - Filtrer les transactions
-- Trier les transactions
+- Trier les transactions (supporté par l'API REST ; l'application mobile affiche les transactions par ordre chronologique sans contrôle de tri dans l'interface)
 - Utiliser la pagination
 
 Une transaction contient :
@@ -86,7 +86,7 @@ Une transaction contient :
 
 Exemples de catégories :
 
-- Vente
+- Ventes
 - Loyer
 - Transport
 - Salaires
@@ -473,7 +473,7 @@ BizPulse/
 │   │   │
 │   │   ├── config/
 │   │   │   ├── database.js
-│   │   │   └── swagger.js
+│   │   │   └── openapi.js
 │   │   │
 │   │   ├── controllers/
 │   │   │   ├── agent.controller.js
@@ -551,6 +551,7 @@ BizPulse/
 │   └── ai-sequence.mermaid
 │
 ├── docker-compose.yml
+├── prompts-journal.md
 ├── README.md
 └── .gitignore
 ```
@@ -574,7 +575,7 @@ Création de compte avec nom d'entreprise, email, mot de passe et secteur d'acti
 Vue synthétique : total des revenus, total des dépenses, solde estimé, top 5 des dépenses par catégorie (fourni directement par le serveur) et graphique d'évolution sur les derniers mois.
 
 ## 5. Transactions (`transactions.js`)
-Historique complet des opérations, filtrage par type (toutes, revenus, dépenses), pagination avec chargement continu ("Charger plus") et bouton d'action flottant.
+Historique complet des opérations, filtrage par type (toutes, revenus, dépenses), pagination avec chargement continu ("Charger plus") et bouton d'action flottant (le tri est supporté par l'API backend mais l'interface mobile ne dispose pas de contrôle de tri).
 
 ## 6. Formulaire de transaction (`transaction-form.js`)
 Ajout et modification d'une transaction avec sélection de la catégorie, montant et date locale (avec calendrier natif). Option de suppression en mode modification.
@@ -613,86 +614,6 @@ motDePasseHash
 secteur
 about
 owner
-```
-json
-│
-├── docker-compose.yml
-├── prompts-journal.md
-├── README.md
-└── .gitignore
-```
-
----
-
-# 📱 Écrans de l'application
-
-L'application contient cinq écrans principaux.
-
-## Login
-
-Permet à l'utilisateur de se connecter.
-
-## Register
-
-Permet à l'utilisateur de créer un compte.
-
-## Dashboard
-
-Affiche :
-
-- Total des revenus
-- Total des dépenses
-- Solde estimé
-- Répartition des dépenses
-- Résumé financier
-
-## Transactions
-
-Permet de :
-
-- Ajouter une transaction
-- Consulter les transactions
-- Modifier une transaction
-- Supprimer une transaction
-- Filtrer les transactions
-- Trier les transactions
-
-## Chat IA
-
-Permet de :
-
-- Poser des questions financières
-- Consulter des analyses
-- Réaliser des simulations
-- Voir progressivement les réponses
-- Consulter l'historique
-
----
-
-# 🗄️ Modèle de données
-
-Le projet utilise cinq entités principales.
-
-```text
-Entreprise
-   │
-   ├── Transaction
-   │
-   ├── Conversation
-   │       │
-   │       └── Message
-   │
-   └── AgentLog
-```
-
-## Entreprise
-
-```text
-id
-nom
-email
-motDePasseHash
-secteur
 ```
 
 ## Transaction
@@ -1047,7 +968,7 @@ Elle permet de tester directement toutes les routes documentées :
 
 Le développement de BizPulse s'inscrit dans une démarche de vibe coding documentée.
 
-Le fichier `prompts-journal.md` (journal de bord personnel de formation à compléter par l'étudiante pour la soutenance) permet de consigner :
+Le fichier `prompts-journal.md` (modèle fourni à la racine du dépôt, journal de bord personnel de formation à compléter pour la soutenance) permet de consigner :
 
 - Les prompts utilisés
 - L'objectif du prompt

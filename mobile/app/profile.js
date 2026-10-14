@@ -58,7 +58,7 @@ export default function Profile() {
       await logout();
     } finally {
       await clear();
-      router.replace("/");
+      router.replace("/login");
     }
   }
 
