@@ -416,8 +416,8 @@ Les clés API, mots de passe et autres secrets ne sont jamais enregistrés direc
 
 ## Documentation
 
-- Swagger / OpenAPI
-- Postman
+- Swagger / OpenAPI (Scalar)
+- Scalar API Reference (/api/scalar)
 - Mermaid
 - Prompt Journal
 
@@ -1072,8 +1072,8 @@ Le MVP comprend :
 - Isolation des données par entreprise
 - Rate limiting
 - Garde-fous de l'assistant
-- Swagger / OpenAPI
-- Postman
+- Swagger / OpenAPI (Scalar)
+- Scalar API Reference (/api/scalar)
 - Diagrammes
 - Prompt Journal
 - Docker / Docker Compose
