@@ -129,7 +129,7 @@ export default function TransactionForm() {
               </Pressable>
             </View>
 
-            <Input label="Montant (DH)" value={montant} onChangeText={setMontant} placeholder="2 500" keyboardType="decimal-pad" />
+            <Input label="Montant (DH)" required value={montant} onChangeText={setMontant} placeholder="2 500" keyboardType="decimal-pad" />
 
             <Text style={styles.label}>Catégorie</Text>
             <View style={styles.categories}>

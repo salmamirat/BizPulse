@@ -55,6 +55,7 @@ export default function Login() {
         <View style={styles.form}>
           <Input
             label="Email"
+            required
             value={email}
             onChangeText={setEmail}
             placeholder="contact@entreprise.ma"
@@ -63,6 +64,7 @@ export default function Login() {
           />
           <Input
             label="Mot de passe"
+            required
             value={motDePasse}
             onChangeText={setMotDePasse}
             placeholder="••••••••"

@@ -10,14 +10,20 @@ export default function Input({
   placeholder,
   secure = false,
   keyboardType = "default",
-  autoCapitalize = "sentences"
+  autoCapitalize = "sentences",
+  required = false
 }) {
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
   const isSecureInput = secure && !isPasswordVisible;
 
   return (
     <View style={styles.wrapper}>
-      {label ? <Text style={styles.label}>{label}</Text> : null}
+      {label ? (
+        <Text style={styles.label}>
+          {label}
+          {required ? <Text style={styles.requiredStar}> *</Text> : null}
+        </Text>
+      ) : null}
       <View style={styles.inputContainer}>
         <TextInput
           value={value}
@@ -51,6 +57,7 @@ export default function Input({
 const styles = StyleSheet.create({
   wrapper: { marginBottom: 12 },
   label: { color: colors.text, fontSize: 12, fontWeight: "600", marginBottom: 6 },
+  requiredStar: { color: colors.expense, fontWeight: "700" },
   inputContainer: {
     flexDirection: "row",
     alignItems: "center",

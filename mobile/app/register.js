@@ -62,9 +62,9 @@ export default function Register() {
         <Text style={styles.title}>Créer un compte</Text>
         <Text style={styles.subtitle}>Commencez la gestion claire et sereine de votre activité.</Text>
 
-        <Input label="Nom de l'entreprise" value={nom} onChangeText={setNom} placeholder="Ex: Atlas Tech SARL" autoCapitalize="words" />
-        <Input label="Email" value={email} onChangeText={setEmail} placeholder="contact@atlastech.ma" keyboardType="email-address" autoCapitalize="none" />
-        <Input label="Mot de passe (6 caractères min)" value={motDePasse} onChangeText={setMotDePasse} placeholder="Au moins 6 caractères" secure autoCapitalize="none" />
+        <Input label="Nom de l'entreprise" required value={nom} onChangeText={setNom} placeholder="Ex: Atlas Tech SARL" autoCapitalize="words" />
+        <Input label="Email" required value={email} onChangeText={setEmail} placeholder="contact@atlastech.ma" keyboardType="email-address" autoCapitalize="none" />
+        <Input label="Mot de passe (6 caractères min)" required value={motDePasse} onChangeText={setMotDePasse} placeholder="Au moins 6 caractères" secure autoCapitalize="none" />
         <Input label="Secteur d'activité (optionnel)" value={secteur} onChangeText={setSecteur} placeholder="Ex: Commerce, Services..." autoCapitalize="words" />
 
         <Button title={loading ? "Création..." : "Créer mon compte"} onPress={handleRegister} disabled={loading} />
