@@ -47,7 +47,7 @@ const TypingIndicator = () => {
 
 export default function Chat() {
   const [conversationId, setConversationId] = useState(null);
-  const [messages, setMessages] = useState([]);
+  const [pendingMessages, setPendingMessages] = useState([]);
   const [question, setQuestion] = useState("");
   const scrollRef = useRef(null);
 
@@ -58,20 +58,14 @@ export default function Chat() {
   } = useConversations();
 
   const {
-    data: serverMessages,
+    data: serverMessages = [],
     refetch: refetchMessages
   } = useMessages(conversationId);
 
   const sendMessageMutation = useSendMessage();
   const sending = sendMessageMutation.isPending;
 
-  useEffect(() => {
-    if (serverMessages) {
-      setMessages(serverMessages);
-    } else if (!conversationId) {
-      setMessages([]);
-    }
-  }, [serverMessages, conversationId]);
+  const messages = [...serverMessages, ...pendingMessages];
 
   useFocusEffect(
     useCallback(() => {
@@ -88,41 +82,37 @@ export default function Chat() {
         scrollRef.current?.scrollToEnd({ animated: true });
       }, 100);
     }
-  }, [messages, sending]);
+  }, [messages.length, sending]);
 
   function openConversation(id) {
     setConversationId(id);
+    setPendingMessages([]);
   }
 
   function newConversation() {
     setConversationId(null);
-    setMessages([]);
+    setPendingMessages([]);
   }
 
   function send(text = question) {
     if (!text.trim() || sending) return;
     const value = text.trim();
     setQuestion("");
-    setMessages((old) => [...old, { role: "user", contenu: value }, { role: "assistant", contenu: "" }]);
+    setPendingMessages([{ role: "user", contenu: value }, { role: "assistant", contenu: "" }]);
 
     sendMessageMutation.mutate(
       { message: value, conversationId },
       {
         onSuccess: (data) => {
+          setPendingMessages([]);
           setConversationId(data.conversationId);
-          setMessages((old) => {
-            const next = [...old];
-            next[next.length - 1] = { role: "assistant", contenu: data.reply };
-            return next;
-          });
         },
         onError: (err) => {
           const errorMsg = err.response?.data?.error || "Une erreur est survenue. Réessayez plus tard.";
-          setMessages((old) => {
-            const next = [...old];
-            next[next.length - 1] = { role: "assistant", contenu: `⚠️ ${errorMsg}` };
-            return next;
-          });
+          setPendingMessages([
+            { role: "user", contenu: value },
+            { role: "assistant", contenu: `⚠️ ${errorMsg}` }
+          ]);
         }
       }
     );
