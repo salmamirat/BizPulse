@@ -3,3 +3,6 @@ node_modules
 .DS_Store
 .expo/
 mobile/.expo/
+.env.local
+dist/
+build/

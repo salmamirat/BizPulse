@@ -394,6 +394,7 @@ Les clés API, mots de passe et autres secrets ne sont jamais enregistrés direc
 - React Native
 - Expo
 - Expo Router
+- @tanstack/react-query
 - Zustand
 - Axios
 - Expo SecureStore
@@ -485,7 +486,8 @@ BizPulse/
 │   │   │   ├── auth.middleware.js
 │   │   │   ├── error.middleware.js
 │   │   │   ├── filter.middleware.js
-│   │   │   └── validate.middleware.js
+│   │   │   ├── validate.middleware.js
+│   │   │   └── validateId.middleware.js
 │   │   │
 │   │   ├── models/
 │   │   │   ├── Entreprise.js
@@ -538,7 +540,21 @@ BizPulse/
 │   ├── constants/
 │   │   └── colors.js
 │   ├── services/
-│   │   └── api.js
+│   │   ├── client.js
+│   │   ├── auth/
+│   │   │   ├── api.js
+│   │   │   └── mutations.js
+│   │   ├── transactions/
+│   │   │   ├── api.js
+│   │   │   ├── queries.js
+│   │   │   └── mutations.js
+│   │   ├── dashboard/
+│   │   │   ├── api.js
+│   │   │   └── queries.js
+│   │   └── agent/
+│   │       ├── api.js
+│   │       ├── queries.js
+│   │       └── mutations.js
 │   ├── store/
 │   │   └── authStore.js
 │   ├── assets/
