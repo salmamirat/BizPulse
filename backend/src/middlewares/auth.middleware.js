@@ -6,7 +6,7 @@ function authMiddleware(req, res, next) {
   if (!authHeader) {
     return res.status(401).json({ error: "Token manquant" });
   }
-  // Format : Bearer <token>
+
   const token = authHeader.split(" ")[1];
 
 

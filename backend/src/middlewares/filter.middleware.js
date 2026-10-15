@@ -9,8 +9,6 @@ const forbiddenWords = [
   "drop table",
   "delete from",
   "supprime toutes",
-  "mot de passe",
-  "password"
 ];
 
 function filterMessage(req, res, next) {

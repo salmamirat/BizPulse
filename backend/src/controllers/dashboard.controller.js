@@ -18,7 +18,6 @@ async function getSummary(req, res) {
 
   transactions.forEach((t) => {
     const montant = Number(t.montant);
-    // Déduire le mois avec t.date.slice(0, 7) (type DATEONLY YYYY-MM-DD)
     const month = t.date ? String(t.date).slice(0, 7) : new Date(t.createdAt).toISOString().slice(0, 7);
 
     if (!evolutionMap[month]) {

@@ -60,7 +60,6 @@ async function askAgent(userMessage, entrepriseId, history = []) {
 
   const functionResult = await tools.executeFunctionByName(functionName, args, entrepriseId);
 
-  // Second appel sans tools ni tool_choice pour contraindre le modèle à répondre en texte
   const secondResponse = await client.chat.completions.create({
     model: process.env.AI_MODEL,
     messages: [

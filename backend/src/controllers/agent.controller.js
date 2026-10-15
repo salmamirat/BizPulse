@@ -96,7 +96,6 @@ async function chatStream(req, res) {
 
   res.write(`event: conversation\ndata: ${data.conversation.id}\n\n`);
 
-  // Découper en préservant espaces et retours à la ligne Markdown, encodé en JSON
   const chunks = data.result.reply.match(/\S+|\s+/g) || [data.result.reply];
 
   for (const chunk of chunks) {

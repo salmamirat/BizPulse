@@ -22,7 +22,6 @@ export default function Index() {
       setVideoFinished(true);
     });
 
-    // Sécurité anti-blocage : passage automatique après 4 secondes
     const timer = setTimeout(() => {
       setVideoFinished(true);
     }, 4000);
