@@ -8,7 +8,11 @@ import Input from "../components/Input";
 import Button from "../components/Button";
 import Card from "../components/Card";
 import colors from "../constants/colors";
-import { createTransaction, deleteTransaction, updateTransaction } from "../services/api";
+import {
+  useCreateTransaction,
+  useUpdateTransaction,
+  useDeleteTransaction
+} from "../services/transactions/mutations";
 
 const baseRevenus = ["Ventes", "Prestations", "Autre"];
 const baseDepenses = ["Loyer", "Transport", "Salaires", "Fournitures", "Marketing", "Logiciels", "Autre"];
@@ -39,7 +43,12 @@ export default function TransactionForm() {
   const [date, setDate] = useState(params.date || formatDate(new Date()));
   const [dateObj, setDateObj] = useState(params.date ? parseLocalDate(params.date) : new Date());
   const [showDatePicker, setShowDatePicker] = useState(false);
-  const [loading, setLoading] = useState(false);
+
+  const createMutation = useCreateTransaction();
+  const updateMutation = useUpdateTransaction();
+  const deleteMutation = useDeleteTransaction();
+
+  const loading = createMutation.isPending || updateMutation.isPending || deleteMutation.isPending;
 
   function handleTypeChange(newType) {
     setType(newType);
@@ -51,7 +60,7 @@ export default function TransactionForm() {
     ? [...currentCategories, categorie]
     : currentCategories;
 
-  async function save() {
+  function save() {
     if (loading) return;
 
     const value = Number(String(montant).replace(",", ".").replace(/\s/g, ""));
@@ -72,16 +81,29 @@ export default function TransactionForm() {
       return;
     }
 
-    try {
-      setLoading(true);
-      const data = { type, montant: value, categorie: categorie.trim(), date };
-      if (editing) await updateTransaction(params.id, data);
-      else await createTransaction(data);
-      router.replace("/transactions");
-    } catch (error) {
-      Alert.alert("Transaction", error.response?.data?.error || "Impossible d'enregistrer la transaction.");
-    } finally {
-      setLoading(false);
+    const data = { type, montant: value, categorie: categorie.trim(), date };
+
+    if (editing) {
+      updateMutation.mutate(
+        { id: params.id, data },
+        {
+          onSuccess: () => {
+            router.replace("/transactions");
+          },
+          onError: (error) => {
+            Alert.alert("Transaction", error.response?.data?.error || "Impossible d'enregistrer la transaction.");
+          }
+        }
+      );
+    } else {
+      createMutation.mutate(data, {
+        onSuccess: () => {
+          router.replace("/transactions");
+        },
+        onError: (error) => {
+          Alert.alert("Transaction", error.response?.data?.error || "Impossible d'enregistrer la transaction.");
+        }
+      });
     }
   }
 
@@ -92,16 +114,15 @@ export default function TransactionForm() {
       {
         text: "Supprimer",
         style: "destructive",
-        onPress: async () => {
-          try {
-            setLoading(true);
-            await deleteTransaction(params.id);
-            router.replace("/transactions");
-          } catch (error) {
-            Alert.alert("Erreur", error.response?.data?.error || "Impossible de supprimer.");
-          } finally {
-            setLoading(false);
-          }
+        onPress: () => {
+          deleteMutation.mutate(params.id, {
+            onSuccess: () => {
+              router.replace("/transactions");
+            },
+            onError: (error) => {
+              Alert.alert("Erreur", error.response?.data?.error || "Impossible de supprimer.");
+            }
+          });
         }
       }
     ]);

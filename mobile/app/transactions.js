@@ -6,49 +6,35 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import Card from "../components/Card";
 import TransactionItem from "../components/TransactionItem";
 import BottomNav from "../components/BottomNav";
-import { getTransactions } from "../services/api";
+import { useTransactionsInfinite } from "../services/transactions/queries";
 import colors from "../constants/colors";
 
 export default function Transactions() {
   const router = useRouter();
   const [type, setType] = useState("");
-  const [items, setItems] = useState([]);
-  const [page, setPage] = useState(1);
-  const [total, setTotal] = useState(0);
-  const [loading, setLoading] = useState(true);
-  const [loadingMore, setLoadingMore] = useState(false);
-  const [error, setError] = useState(false);
 
-  const load = useCallback(async (nextPage = 1, append = false) => {
-    try {
-      if (!append) {
-        setLoading(true);
-        setError(false);
-      }
-      const data = await getTransactions({ page: nextPage, limit: 10, ...(type ? { type } : {}), sort: "date" });
-      setItems((old) => append ? [...old, ...(data.data || [])] : (data.data || []));
-      setPage(nextPage);
-      setTotal(data.total || 0);
-      setError(false);
-    } catch {
-      if (!append) {
-        setError(true);
-      }
-    } finally {
-      setLoading(false);
-      setLoadingMore(false);
-    }
-  }, [type]);
+  const {
+    data,
+    isLoading: loading,
+    isError: error,
+    isFetchingNextPage: loadingMore,
+    hasNextPage: hasMore,
+    fetchNextPage,
+    refetch
+  } = useTransactionsInfinite(type);
 
-  useFocusEffect(useCallback(() => { load(1, false); }, [load]));
+  const items = data ? data.pages.flatMap((page) => page.data || []) : [];
 
-  async function handleLoadMore() {
-    if (loading || loadingMore || items.length >= total) return;
-    setLoadingMore(true);
-    await load(page + 1, true);
+  useFocusEffect(
+    useCallback(() => {
+      refetch();
+    }, [refetch])
+  );
+
+  function handleLoadMore() {
+    if (loading || loadingMore || !hasMore) return;
+    fetchNextPage();
   }
-
-  const hasMore = items.length < total;
 
   return (
     <SafeAreaView style={styles.screen} edges={["top"]}>
@@ -82,7 +68,7 @@ export default function Transactions() {
               <View style={styles.errorBox}>
                 <Text style={styles.errorText}>Impossible de charger les transactions.</Text>
                 <Pressable
-                  onPress={() => load(1, false)}
+                  onPress={() => refetch()}
                   style={styles.retryButton}
                   accessibilityRole="button"
                   accessibilityLabel="Réessayer"

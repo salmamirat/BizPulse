@@ -1,7 +1,6 @@
 import axios from "axios";
 import * as SecureStore from "expo-secure-store";
 import useAuthStore from "../store/authStore";
-
 import { Platform } from "react-native";
 
 const API_URL =
@@ -74,73 +73,4 @@ api.interceptors.response.use(
   }
 );
 
-export async function login(email, motDePasse) {
-  const { data } = await api.post("/auth/login", { email, motDePasse });
-  return data;
-}
-
-export async function register(nom, email, motDePasse, secteur) {
-  const { data } = await api.post("/auth/register", { nom, email, motDePasse, secteur });
-  return data;
-}
-
-export async function logout() {
-  try {
-    await api.post("/auth/logout");
-  } catch {}
-}
-
-export async function updateProfile(data) {
-  const response = await api.put("/auth/profile", data);
-  return response.data;
-}
-
-export async function getDashboard() {
-  const { data } = await api.get("/dashboard/summary");
-  return data;
-}
-
-export async function getTransactions(params = {}) {
-  const { data } = await api.get("/transactions", { params });
-  return data;
-}
-
-export async function createTransaction(data) {
-  const response = await api.post("/transactions", data);
-  return response.data;
-}
-
-export async function updateTransaction(id, data) {
-  const response = await api.put(`/transactions/${id}`, data);
-  return response.data;
-}
-
-export async function deleteTransaction(id) {
-  const response = await api.delete(`/transactions/${id}`);
-  return response.data;
-}
-
-export async function getConversations() {
-  const { data } = await api.get("/agent/conversations");
-  return data;
-}
-
-export async function getMessages(id) {
-  const { data } = await api.get(`/agent/conversations/${id}/messages`);
-  return data;
-}
-
-export async function sendMessage(message, conversationId) {
-  const { data } = await api.post(
-    "/agent/chat",
-    {
-      message,
-      ...(conversationId ? { conversationId } : {})
-    },
-    { timeout: 60000 }
-  );
-  return data;
-}
-
 export default api;
-

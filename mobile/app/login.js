@@ -1,21 +1,19 @@
 import { useState } from "react";
 import { Alert, KeyboardAvoidingView, Platform, StyleSheet, Text, View, ScrollView } from "react-native";
 import { Image } from "expo-image";
-import { Link, useRouter } from "expo-router";
+import { Link } from "expo-router";
 import Input from "../components/Input";
 import Button from "../components/Button";
-import useAuthStore from "../store/authStore";
-import { login } from "../services/api";
+import { useLogin } from "../services/auth/mutations";
 import colors from "../constants/colors";
 
 export default function Login() {
-  const router = useRouter();
-  const saveSession = useAuthStore((state) => state.saveSession);
   const [email, setEmail] = useState("");
   const [motDePasse, setMotDePasse] = useState("");
-  const [loading, setLoading] = useState(false);
+  const loginMutation = useLogin();
+  const loading = loginMutation.isPending;
 
-  async function handleLogin() {
+  function handleLogin() {
     if (!email.trim() || !motDePasse) {
       Alert.alert("Connexion", "Veuillez remplir tous les champs.");
       return;
@@ -27,20 +25,14 @@ export default function Login() {
       return;
     }
 
-    try {
-      setLoading(true);
-      const data = await login(email.trim(), motDePasse);
-      await saveSession(
-        data.accessToken,
-        data.refreshToken,
-        data.profile
-      );
-      router.replace("/dashboard");
-    } catch (error) {
-      Alert.alert("Connexion", error.response?.data?.error || "Impossible de se connecter.");
-    } finally {
-      setLoading(false);
-    }
+    loginMutation.mutate(
+      { email: email.trim(), motDePasse },
+      {
+        onError: (error) => {
+          Alert.alert("Connexion", error.response?.data?.error || "Impossible de se connecter.");
+        }
+      }
+    );
   }
 
   return (

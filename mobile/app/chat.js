@@ -5,7 +5,8 @@ import { Ionicons } from "@expo/vector-icons";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Markdown from "react-native-markdown-display";
 import BottomNav from "../components/BottomNav";
-import { getConversations, getMessages, sendMessage } from "../services/api";
+import { useConversations, useMessages } from "../services/agent/queries";
+import { useSendMessage } from "../services/agent/mutations";
 import colors from "../constants/colors";
 
 function formatConversationDate(dateStr) {
@@ -48,29 +49,38 @@ export default function Chat() {
   const [conversationId, setConversationId] = useState(null);
   const [messages, setMessages] = useState([]);
   const [question, setQuestion] = useState("");
-  const [sending, setSending] = useState(false);
-  const [conversations, setConversations] = useState([]);
-  const [refreshing, setRefreshing] = useState(false);
   const scrollRef = useRef(null);
 
-  const load = useCallback(async () => {
-    setRefreshing(true);
-    try {
-      const list = await getConversations();
-      setConversations(list || []);
+  const {
+    data: conversations = [],
+    refetch: refetchConversations,
+    isFetching: refreshing
+  } = useConversations();
 
-      if (conversationId && list?.some((c) => c.id === conversationId)) {
-        const msgs = await getMessages(conversationId);
-        setMessages(msgs || []);
-      }
-    } catch {
-      setConversations([]);
-    } finally {
-      setRefreshing(false);
+  const {
+    data: serverMessages,
+    refetch: refetchMessages
+  } = useMessages(conversationId);
+
+  const sendMessageMutation = useSendMessage();
+  const sending = sendMessageMutation.isPending;
+
+  useEffect(() => {
+    if (serverMessages) {
+      setMessages(serverMessages);
+    } else if (!conversationId) {
+      setMessages([]);
     }
-  }, [conversationId]);
+  }, [serverMessages, conversationId]);
 
-  useFocusEffect(useCallback(() => { load(); }, [load]));
+  useFocusEffect(
+    useCallback(() => {
+      refetchConversations();
+      if (conversationId) {
+        refetchMessages();
+      }
+    }, [refetchConversations, refetchMessages, conversationId])
+  );
 
   useEffect(() => {
     if (messages.length > 0) {
@@ -80,14 +90,8 @@ export default function Chat() {
     }
   }, [messages, sending]);
 
-  async function openConversation(id) {
-    try {
-      setConversationId(id);
-      const msgs = await getMessages(id);
-      setMessages(msgs || []);
-    } catch {
-      setMessages([]);
-    }
+  function openConversation(id) {
+    setConversationId(id);
   }
 
   function newConversation() {
@@ -95,34 +99,33 @@ export default function Chat() {
     setMessages([]);
   }
 
-  async function send(text = question) {
+  function send(text = question) {
     if (!text.trim() || sending) return;
     const value = text.trim();
     setQuestion("");
     setMessages((old) => [...old, { role: "user", contenu: value }, { role: "assistant", contenu: "" }]);
-    setSending(true);
 
-    try {
-      const data = await sendMessage(value, conversationId);
-      setConversationId(data.conversationId);
-      setMessages((old) => {
-        const next = [...old];
-        next[next.length - 1] = { role: "assistant", contenu: data.reply };
-        return next;
-      });
-
-      const list = await getConversations();
-      setConversations(list || []);
-    } catch (err) {
-      const errorMsg = err.response?.data?.error || "Une erreur est survenue. Réessayez plus tard.";
-      setMessages((old) => {
-        const next = [...old];
-        next[next.length - 1] = { role: "assistant", contenu: `⚠️ ${errorMsg}` };
-        return next;
-      });
-    } finally {
-      setSending(false);
-    }
+    sendMessageMutation.mutate(
+      { message: value, conversationId },
+      {
+        onSuccess: (data) => {
+          setConversationId(data.conversationId);
+          setMessages((old) => {
+            const next = [...old];
+            next[next.length - 1] = { role: "assistant", contenu: data.reply };
+            return next;
+          });
+        },
+        onError: (err) => {
+          const errorMsg = err.response?.data?.error || "Une erreur est survenue. Réessayez plus tard.";
+          setMessages((old) => {
+            const next = [...old];
+            next[next.length - 1] = { role: "assistant", contenu: `⚠️ ${errorMsg}` };
+            return next;
+          });
+        }
+      }
+    );
   }
 
   return (
@@ -138,7 +141,10 @@ export default function Chat() {
               <Text style={styles.newText}>＋ Nouveau</Text>
             </Pressable>
             <Pressable
-              onPress={() => load()}
+              onPress={() => {
+                refetchConversations();
+                if (conversationId) refetchMessages();
+              }}
               hitSlop={8}
               accessibilityLabel="Rafraîchir les conversations"
               style={{ width: 24, height: 24, justifyContent: "center", alignItems: "center" }}

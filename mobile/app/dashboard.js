@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useCallback } from "react";
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View, Dimensions } from "react-native";
 import { useFocusEffect, useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
@@ -7,7 +7,7 @@ import { LineChart } from "react-native-chart-kit";
 import Card from "../components/Card";
 import Button from "../components/Button";
 import BottomNav from "../components/BottomNav";
-import { getDashboard } from "../services/api";
+import { useDashboard } from "../services/dashboard/queries";
 import useAuthStore from "../store/authStore";
 import colors from "../constants/colors";
 
@@ -25,24 +25,14 @@ function formatMonthLabel(m) {
 export default function Dashboard() {
   const router = useRouter();
   const profile = useAuthStore((state) => state.profile);
-  const [summary, setSummary] = useState({ revenus: 0, depenses: 0, solde: 0, parCategorie: {}, evolution: null });
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(false);
+  const { data: summaryData, isLoading: loading, isError: error, refetch } = useDashboard();
+  const summary = summaryData || { revenus: 0, depenses: 0, solde: 0, parCategorie: {}, evolution: null };
 
-  const load = useCallback(async () => {
-    try {
-      setLoading(true);
-      setError(false);
-      const summaryData = await getDashboard();
-      setSummary(summaryData);
-    } catch {
-      setError(true);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useFocusEffect(useCallback(() => { load(); }, [load]));
+  useFocusEffect(
+    useCallback(() => {
+      refetch();
+    }, [refetch])
+  );
 
   if (loading) {
     return (
@@ -60,7 +50,7 @@ export default function Dashboard() {
           <Text style={styles.errorTitle}>Impossible de charger les données.</Text>
           <Text style={styles.errorSubtitle}>Vérifiez votre connexion au serveur puis réessayez.</Text>
           <View style={{ width: "100%", maxWidth: 280, marginTop: 16 }}>
-            <Button title="Réessayer" onPress={() => load()} />
+            <Button title="Réessayer" onPress={() => refetch()} />
           </View>
         </View>
         <BottomNav />

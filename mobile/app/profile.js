@@ -7,7 +7,7 @@ import Card from "../components/Card";
 import Button from "../components/Button";
 import BottomNav from "../components/BottomNav";
 import useAuthStore from "../store/authStore";
-import { logout, updateProfile } from "../services/api";
+import { useLogout, useUpdateProfile } from "../services/auth/mutations";
 import colors from "../constants/colors";
 
 const InfoRow = ({ icon, label, value, isEditing, onChangeText, multiline, keyboardType, autoCapitalize = "sentences" }) => (
@@ -42,24 +42,20 @@ const Divider = () => <View style={styles.divider} />;
 export default function Profile() {
   const router = useRouter();
   const profile = useAuthStore((state) => state.profile);
-  const saveProfile = useAuthStore((state) => state.saveProfile);
-  const clear = useAuthStore((state) => state.logout);
+
+  const logoutMutation = useLogout();
+  const updateProfileMutation = useUpdateProfile();
 
   const [isEditing, setIsEditing] = useState(false);
-  const [saving, setSaving] = useState(false);
+  const saving = updateProfileMutation.isPending;
   const [editName, setEditName] = useState("");
   const [editEmail, setEditEmail] = useState("");
   const [editSector, setEditSector] = useState("");
   const [editAbout, setEditAbout] = useState("");
   const [editOwner, setEditOwner] = useState("");
 
-  async function handleLogout() {
-    try {
-      await logout();
-    } finally {
-      await clear();
-      router.replace("/login");
-    }
+  function handleLogout() {
+    logoutMutation.mutate();
   }
 
   function handleEdit() {
@@ -71,7 +67,7 @@ export default function Profile() {
     setIsEditing(true);
   }
 
-  async function handleSave() {
+  function handleSave() {
     if (saving) return;
 
     if (!editName.trim()) {
@@ -85,28 +81,22 @@ export default function Profile() {
       return;
     }
 
-    try {
-      setSaving(true);
-      const updatedData = {
-        nom: editName.trim(),
-        email: editEmail.trim(),
-        secteur: editSector.trim(),
-        about: editAbout.trim(),
-        owner: editOwner.trim()
-      };
+    const updatedData = {
+      nom: editName.trim(),
+      email: editEmail.trim(),
+      secteur: editSector.trim(),
+      about: editAbout.trim(),
+      owner: editOwner.trim()
+    };
 
-      const serverData = await updateProfile(updatedData);
-
-      await saveProfile({
-        ...profile,
-        ...serverData
-      });
-      setIsEditing(false);
-    } catch (error) {
-      Alert.alert("Erreur", error.response?.data?.error || "Impossible de mettre à jour le profil.");
-    } finally {
-      setSaving(false);
-    }
+    updateProfileMutation.mutate(updatedData, {
+      onSuccess: () => {
+        setIsEditing(false);
+      },
+      onError: (error) => {
+        Alert.alert("Erreur", error.response?.data?.error || "Impossible de mettre à jour le profil.");
+      }
+    });
   }
 
   const displayName = profile?.nom || "Mon Business";
