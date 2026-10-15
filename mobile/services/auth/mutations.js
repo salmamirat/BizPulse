@@ -17,13 +17,9 @@ export function useLogin() {
 }
 
 export function useRegister() {
-  const router = useRouter();
   return useMutation({
     mutationFn: ({ nom, email, motDePasse, secteur }) =>
-      register(nom, email, motDePasse, secteur),
-    onSuccess: () => {
-      router.replace("/login");
-    }
+      register(nom, email, motDePasse, secteur)
   });
 }
 

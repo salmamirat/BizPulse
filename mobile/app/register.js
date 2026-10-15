@@ -43,7 +43,16 @@ export default function Register() {
       },
       {
         onSuccess: () => {
-          Alert.alert("Compte créé", "Votre compte a été créé. Vous pouvez maintenant vous connecter.");
+          Alert.alert(
+            "Compte créé",
+            "Votre compte a été créé. Vous pouvez maintenant vous connecter.",
+            [
+              {
+                text: "Se connecter",
+                onPress: () => router.replace("/login")
+              }
+            ]
+          );
         },
         onError: (error) => {
           Alert.alert("Inscription", error.response?.data?.error || "Impossible de créer le compte.");

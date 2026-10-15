@@ -25,7 +25,7 @@ function formatMonthLabel(m) {
 export default function Dashboard() {
   const router = useRouter();
   const profile = useAuthStore((state) => state.profile);
-  const { data: summaryData, isLoading: loading, isError: error, refetch } = useDashboard();
+  const { data: summaryData, isLoading, isError, refetch } = useDashboard();
   const summary = summaryData || { revenus: 0, depenses: 0, solde: 0, parCategorie: {}, evolution: null };
 
   useFocusEffect(
@@ -34,7 +34,7 @@ export default function Dashboard() {
     }, [refetch])
   );
 
-  if (loading) {
+  if (isLoading) {
     return (
       <SafeAreaView style={styles.loading}>
         <ActivityIndicator color={colors.primary} size="large" />
@@ -42,7 +42,7 @@ export default function Dashboard() {
     );
   }
 
-  if (error) {
+  if (isError) {
     return (
       <SafeAreaView style={styles.screen} edges={["top"]}>
         <View style={styles.errorContainer}>

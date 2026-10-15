@@ -15,10 +15,10 @@ export default function Transactions() {
 
   const {
     data,
-    isLoading: loading,
-    isError: error,
-    isFetchingNextPage: loadingMore,
-    hasNextPage: hasMore,
+    isLoading,
+    isError,
+    isFetchingNextPage,
+    hasNextPage,
     fetchNextPage,
     refetch
   } = useTransactionsInfinite(type);
@@ -32,7 +32,7 @@ export default function Transactions() {
   );
 
   function handleLoadMore() {
-    if (loading || loadingMore || !hasMore) return;
+    if (isLoading || isFetchingNextPage || !hasNextPage) return;
     fetchNextPage();
   }
 
@@ -62,9 +62,9 @@ export default function Transactions() {
           </View>
 
           <Card style={styles.listCard}>
-            {loading && items.length === 0 ? (
+            {isLoading && items.length === 0 ? (
                <ActivityIndicator color={colors.primary} style={{ paddingVertical: 24 }} />
-            ) : error && items.length === 0 ? (
+            ) : isError && items.length === 0 ? (
               <View style={styles.errorBox}>
                 <Text style={styles.errorText}>Impossible de charger les transactions.</Text>
                 <Pressable
@@ -100,14 +100,14 @@ export default function Transactions() {
             )}
           </Card>
 
-          {hasMore && (
+          {hasNextPage && (
             <Pressable
               onPress={handleLoadMore}
-              disabled={loading || loadingMore}
+              disabled={isLoading || isFetchingNextPage}
               style={styles.more}
               accessibilityLabel="Charger plus de transactions"
             >
-              {loadingMore ? (
+              {isFetchingNextPage ? (
                 <ActivityIndicator size="small" color={colors.primary} />
               ) : (
                 <Text style={styles.moreText}>⌄  Charger plus</Text>
